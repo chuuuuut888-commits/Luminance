@@ -1,0 +1,2771 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-full bg-[#FBF8F3] text-[#231C18]">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>LUMIÈRE | パーソナル美容スタジオ</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Playfair Display, Shippori Mincho, Noto Sans JP -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Shippori+Mincho:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: '#FBF8F3',
+              card: '#FFFFFF',
+              border: '#EAE0D5',
+              ink: '#231C18',
+              muted: '#7D7168',
+              accent: '#8C5E3C',
+              accentDark: '#6E4730',
+              sage: '#EDF7F1',
+              sageBorder: '#C2E5D1',
+              sageText: '#1E5839',
+              gold: '#D4AF37'
+            }
+          },
+          fontFamily: {
+            mincho: ['"Shippori Mincho"', 'serif'],
+            serif: ['"Playfair Display"', 'serif'],
+            sans: ['"Noto Sans JP"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Strict Screen Isolation & Smooth Layout Fixes */
+    body {
+      overflow-x: clip;
+      background-color: #FBF8F3;
+      font-family: 'Noto Sans JP', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app-view {
+      display: none !important;
+    }
+    .app-view.active {
+      display: block !important;
+    }
+
+    /* Subtle Ken Burns Backdrop Animation */
+    @keyframes kenburns {
+      0% { transform: scale(1) translate(0, 0); }
+      50% { transform: scale(1.06) translate(-1%, -1%); }
+      100% { transform: scale(1) translate(0, 0); }
+    }
+    .animate-kenburns {
+      animation: kenburns 35s ease-in-out infinite alternate;
+    }
+    .backdrop-paused {
+      animation-play-state: paused !important;
+    }
+
+    /* Luxury Frosted Glass */
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .glass-modal {
+      background: rgba(255, 253, 250, 0.94);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+
+    /* Custom Scrollbar for Luxury Aesthetics */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.02);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D5C8BB;
+      border-radius: 99px;
+    }
+  </style>
+</head>
+<body class="min-h-full flex flex-col justify-between text-brand-ink antialiased selection:bg-brand-accent selection:text-white pb-28">
+
+  <!-- ========================================== -->
+  <!-- LIVE BACKGROUND BACKDROP LAYER             -->
+  <!-- ========================================== -->
+  <div id="liveBackdropLayer" class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+    <div id="backdropImg" class="absolute inset-0 bg-cover bg-center transition-all duration-1000 transform animate-kenburns"
+         style="background-image: url('https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=1600&q=80');"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-[#FBF8F3]/90 via-[#FBF8F3]/80 to-[#FBF8F3]/95"></div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MAIN APP CONTAINER                         -->
+  <!-- ========================================== -->
+  <div class="relative z-10 max-w-md md:max-w-xl lg:max-w-2xl mx-auto w-full min-h-screen flex flex-col shadow-2xl bg-[#FBF8F3]/60 border-x border-brand-border/40">
+
+    <!-- STICKY HEADER WITH LUXURY LOGO & AI STATUS PILL -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-brand-border/60 px-4 py-3 flex items-center justify-between shadow-sm">
+      <div class="flex items-center gap-2">
+        <span class="font-serif italic text-2xl tracking-widest text-brand-accent font-semibold">LUMIÈRE</span>
+        <span class="text-[10px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-brand-accent/10 text-brand-accent border border-brand-accent/20 font-sans font-medium">Studio</span>
+      </div>
+
+      <!-- AI Status Pill (Clickable -> Opens API Quick Modal) -->
+      <button id="headerAiPill" onclick="openApiKeyModal()" type="button" class="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all shadow-sm border border-brand-accent/30 bg-white/90 hover:bg-brand-accent/10">
+        <!-- Javascript dynamic content -->
+        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+        <span class="text-brand-accent">🔑 AI未接続・1タップ設定</span>
+      </button>
+    </header>
+
+    <!-- NOTIFICATION / TOAST MESSAGING BANNER CONTAINER -->
+    <div id="toastContainer" class="fixed top-14 left-1/2 -translate-x-1/2 z-50 w-11/12 max-w-sm pointer-events-none flex flex-col gap-2"></div>
+
+    <!-- MAIN VIEW WRAPPER -->
+    <main class="flex-1 px-4 py-5">
+
+      <!-- ========================================== -->
+      <!-- TAB 1: HOME VIEW (#viewHome)               -->
+      <!-- ========================================== -->
+      <section id="viewHome" class="app-view space-y-6">
+        
+        <!-- EDITORIAL HERO PORTRAIT CARD -->
+        <div class="relative rounded-3xl overflow-hidden shadow-lg border border-brand-border/60 bg-white">
+          <div class="relative h-80 sm:h-96 w-full overflow-hidden bg-brand-bg">
+            <img id="heroPortraitImg" src="" alt="Daily Editorial Studio Visual" 
+                 class="w-full h-full object-cover object-[50%_20%] transition-opacity duration-700 opacity-0"
+                 onload="this.classList.remove('opacity-0')"
+                 onerror="handleHeroImgError(this)" />
+            <!-- Luxury SVG Fallback inside if image fails -->
+            <div id="heroSvgFallback" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-[#EAE0D5] to-[#FBF8F3] text-brand-accent p-6 text-center">
+              <svg class="w-20 h-20 mb-2 stroke-current text-brand-accent/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18m9-9H3m15.364-6.364l-12.728 12.728m0-12.728l12.728 12.728"/>
+              </svg>
+              <span class="font-serif italic text-xl tracking-widest text-brand-ink">LUMIÈRE</span>
+              <p class="text-xs text-brand-muted mt-1">洗練された大人肌のためのパーソナル処方室</p>
+            </div>
+            
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20"></div>
+            
+            <!-- Date & Greeting Badge overlaid at bottom left (Zero text over face) -->
+            <div class="absolute bottom-4 left-4 right-4 text-white">
+              <div class="flex items-center gap-2 mb-1">
+                <span id="homeDateDisplay" class="text-xs font-serif tracking-wider uppercase opacity-90">2026.11.22 SUNDAY</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white font-sans">本日のエディトリアル</span>
+              </div>
+              <h2 id="homeGreetingTitle" class="font-mincho text-2xl font-semibold tracking-wide drop-shadow-md">
+                おかえりなさい、美しさの深まりへ
+              </h2>
+            </div>
+          </div>
+
+          <!-- EDITORIAL CONTENT PANEL BELOW HERO PHOTO -->
+          <div class="p-5 space-y-4 bg-white">
+            <!-- Focus Care Full-Wrap Card -->
+            <div class="p-4 rounded-2xl bg-brand-bg/80 border border-brand-border/70">
+              <div class="flex justify-between items-center mb-1.5">
+                <span class="text-xs uppercase tracking-widest font-semibold text-brand-accent">本日の重点アプローチ</span>
+                <button type="button" onclick="openProfileModal()" class="text-xs text-brand-accent hover:underline flex items-center gap-0.5">
+                  ✏️ 変更
+                </button>
+              </div>
+              <p id="homeFocusCareText" class="text-sm text-brand-ink leading-relaxed font-medium whitespace-normal break-words">
+                年齢変化に負けない「ハリ・ツヤ・高保湿」の重層バリアケア
+              </p>
+            </div>
+
+            <!-- 2 Key Action Buttons -->
+            <div class="grid grid-cols-2 gap-3">
+              <button onclick="openSkinCheckModal()" type="button" class="flex flex-col items-center justify-center p-4 rounded-2xl bg-gradient-to-br from-brand-accent to-brand-accentDark text-white shadow-md hover:shadow-lg transition-all active:scale-95">
+                <span class="text-2xl mb-1">📸</span>
+                <span class="font-medium text-sm">AI肌コンディションチェック</span>
+                <span class="text-[10px] text-white/80 mt-0.5">写真から即時解析</span>
+              </button>
+              
+              <button onclick="switchTab('pouch', 'tab-care')" type="button" class="flex flex-col items-center justify-center p-4 rounded-2xl bg-white border border-brand-accent/40 text-brand-ink shadow-sm hover:border-brand-accent transition-all active:scale-95">
+                <span class="text-2xl mb-1">✨</span>
+                <span class="font-medium text-sm text-brand-accent">朝夜の最適な重ね順</span>
+                <span class="text-[10px] text-brand-muted mt-0.5">手持ちコスメを自動構成</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- REAL-TIME WEATHER BEAUTY PRESCRIPTION CARD -->
+        <div class="rounded-3xl bg-white p-5 border border-brand-border shadow-sm space-y-3">
+          <div class="flex items-center justify-between border-b border-brand-border/50 pb-3">
+            <div class="flex items-center gap-2">
+              <span id="weatherIcon" class="text-2xl">🌤️</span>
+              <div>
+                <h3 class="font-mincho font-semibold text-base">リアルタイム気象＆美容処方</h3>
+                <p id="weatherLocation" class="text-xs text-brand-muted">愛知県 豊川市 (位置情報同期)</p>
+              </div>
+            </div>
+            <button onclick="refreshWeatherInfo(true)" type="button" class="text-xs px-2.5 py-1 rounded-full bg-brand-bg border border-brand-border hover:bg-brand-border/40 text-brand-muted flex items-center gap-1">
+              🔄 取得
+            </button>
+          </div>
+
+          <!-- Weather Metrics Grid -->
+          <div class="grid grid-cols-3 gap-2 text-center text-xs py-1">
+            <div class="p-2 rounded-xl bg-brand-bg/60 border border-brand-border/40">
+              <span class="block text-brand-muted text-[10px]">気温</span>
+              <span id="weatherTemp" class="font-semibold text-sm text-brand-ink">-- ℃</span>
+            </div>
+            <div class="p-2 rounded-xl bg-brand-bg/60 border border-brand-border/40">
+              <span class="block text-brand-muted text-[10px]">湿度</span>
+              <span id="weatherHumidity" class="font-semibold text-sm text-brand-ink">-- %</span>
+            </div>
+            <div class="p-2 rounded-xl bg-brand-bg/60 border border-brand-border/40">
+              <span class="block text-brand-muted text-[10px]">UVインデックス</span>
+              <span id="weatherUv" class="font-semibold text-sm text-brand-accent">--</span>
+            </div>
+          </div>
+
+          <div id="weatherAdviceBox" class="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-xs text-brand-ink leading-relaxed">
+            <span class="font-semibold text-brand-accent block mb-0.5">💡 今日の環境スキンケアアドバイス</span>
+            湿度と気象状況を取得中…AIが手持ちのポーチアイテムを基にアドバイスを生成します。
+          </div>
+        </div>
+
+        <!-- TODAY'S ROUTINE WITH ENERGY SWITCH -->
+        <div class="rounded-3xl bg-white p-5 border border-brand-border shadow-sm space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-brand-border/50 pb-3">
+            <div>
+              <h3 class="font-mincho font-semibold text-lg">本日のデイリーステップ</h3>
+              <p class="text-xs text-brand-muted">あなたのポーチ登録コスメで自動生成</p>
+            </div>
+
+            <!-- Energy Switch Toggle Buttons -->
+            <div class="inline-flex p-1 rounded-xl bg-brand-bg border border-brand-border self-start sm:self-auto">
+              <button id="energyModeFull" onclick="setEnergyMode('full')" type="button" class="px-3 py-1 rounded-lg text-xs font-medium transition-all bg-white text-brand-accent shadow-sm">
+                ✨ 今日はしっかり
+              </button>
+              <button id="energyModeEasy" onclick="setEnergyMode('easy')" type="button" class="px-3 py-1 rounded-lg text-xs font-medium transition-all text-brand-muted hover:text-brand-ink">
+                🌙 おつかれ合格モード
+              </button>
+            </div>
+          </div>
+
+          <!-- Morning & Evening Steps Container -->
+          <div class="space-y-4">
+            <!-- Morning Block -->
+            <div class="space-y-2">
+              <div class="flex items-center gap-2 text-xs font-semibold text-amber-800 uppercase tracking-wider">
+                <span>☀️</span> Morning Routine (朝のケア)
+              </div>
+              <div id="homeMorningRoutineList" class="space-y-2">
+                <!-- Javascript dynamic routine items -->
+              </div>
+            </div>
+
+            <!-- Evening Block -->
+            <div class="space-y-2 pt-2 border-t border-brand-border/40">
+              <div class="flex items-center gap-2 text-xs font-semibold text-indigo-900 uppercase tracking-wider">
+                <span>🌙</span> Evening Routine (夜のケア)
+              </div>
+              <div id="homeEveningRoutineList" class="space-y-2">
+                <!-- Javascript dynamic routine items -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 2: MY POUCH VIEW (#viewPouch)          -->
+      <!-- ========================================== -->
+      <section id="viewPouch" class="app-view space-y-5">
+        
+        <!-- POUCH TABS (登録・管理 vs 朝夜ケア・活用術) -->
+        <div class="flex rounded-2xl bg-white p-1 border border-brand-border shadow-sm">
+          <button id="pouchSubTab1" onclick="switchPouchSubTab('tab-manage')" type="button" class="flex-1 py-2.5 text-xs font-semibold rounded-xl transition-all bg-brand-accent text-white shadow">
+            💄 登録・ポーチ管理
+          </button>
+          <button id="pouchSubTab2" onclick="switchPouchSubTab('tab-care')" type="button" class="flex-1 py-2.5 text-xs font-semibold rounded-xl transition-all text-brand-muted hover:text-brand-ink">
+            ✨ 朝夜ケア・活用術
+          </button>
+        </div>
+
+        <!-- SUB-TAB 1: POUCH MANAGEMENT (#pouchContentManage) -->
+        <div id="pouchContentManage" class="space-y-5">
+
+          <!-- 1. DUAL-MODE CAMERA & GALLERY SCANNER ENGINE CARD -->
+          <div class="rounded-3xl bg-white p-5 border border-brand-border shadow-sm space-y-4">
+            <div class="border-b border-brand-border/50 pb-3">
+              <span class="text-[10px] font-semibold uppercase tracking-widest text-brand-accent block mb-1">AI Package Recognition</span>
+              <h3 class="font-mincho font-semibold text-lg">パッケージ写真から一括判別・登録</h3>
+              <p class="text-xs text-brand-muted mt-0.5">ドレッサーやコスメをそのまま撮影するだけで成分・ブランド・効果を自動解析</p>
+            </div>
+
+            <!-- DUAL-MODE TRIGGER BUTTONS -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <!-- Mode 1: Native OS Camera Input (bound via label) -->
+              <label for="pouchCameraInput" class="cursor-pointer flex items-center justify-center gap-2 py-3 px-3 rounded-2xl bg-brand-accent text-white text-xs font-medium shadow hover:bg-brand-accentDark transition-all text-center">
+                <span>📷</span> カメラで撮影してAI判別
+              </label>
+              <input id="pouchCameraInput" type="file" accept="image/*" capture="environment" class="sr-only" onchange="handlePouchPhotoSelect(event)">
+
+              <!-- Mode 2: Live In-App Viewfinder Camera -->
+              <button type="button" onclick="openLiveCamera('pouch')" class="flex items-center justify-center gap-2 py-3 px-3 rounded-2xl bg-brand-bg border border-brand-accent/40 text-brand-ink text-xs font-medium hover:border-brand-accent transition-all text-center">
+                <span>🎥</span> ライブカメラで写す
+              </button>
+
+              <!-- Mode 3: Photo Gallery Album -->
+              <label for="pouchGalleryInput" class="cursor-pointer flex items-center justify-center gap-2 py-3 px-3 rounded-2xl bg-brand-bg border border-brand-border text-brand-muted text-xs font-medium hover:text-brand-ink transition-all text-center">
+                <span>🖼️</span> アルバムから選ぶ
+              </label>
+              <input id="pouchGalleryInput" type="file" accept="image/*" class="sr-only" onchange="handlePouchPhotoSelect(event)">
+            </div>
+
+            <!-- Photo Processing Status & Result Area -->
+            <div id="pouchScanResultArea" class="hidden rounded-2xl bg-brand-bg/70 p-4 border border-brand-border space-y-3">
+              <div id="pouchScanProgressBanner" class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center gap-2">
+                <span class="animate-spin text-base">⏳</span>
+                <span id="pouchProgressText" class="font-medium">1. 写真読み込み中…</span>
+              </div>
+
+              <!-- Preview Image and Retry Button -->
+              <div id="pouchPhotoPreviewBox" class="hidden flex items-center gap-3 bg-white p-2.5 rounded-xl border border-brand-border">
+                <img id="pouchScanPreviewImg" src="" alt="Captured Cosmetic" class="w-16 h-16 object-cover rounded-lg border border-brand-border">
+                <div class="flex-1 text-xs">
+                  <span class="font-medium text-brand-ink block">解析対象の画像</span>
+                  <span id="pouchPhotoDetailText" class="text-[10px] text-brand-muted">JPEG 1024px 高画質最適化済</span>
+                </div>
+                <button id="btnRetryPouchScan" onclick="retryPouchAnalysis()" type="button" class="px-3 py-1.5 rounded-lg bg-brand-accent/10 text-brand-accent text-xs font-medium border border-brand-accent/30 hover:bg-brand-accent/20">
+                  🔄 再解析
+                </button>
+              </div>
+
+              <!-- Parsed Multi-Item Selection Checkbox List -->
+              <div id="pouchParsedItemsContainer" class="space-y-2">
+                <!-- Javascript dynamic parsing results -->
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. REAL-TIME WEB CROSS-SEARCH ENGINE CARD -->
+          <div class="rounded-3xl bg-white p-5 border border-brand-border shadow-sm space-y-3">
+            <div class="border-b border-brand-border/50 pb-2">
+              <h3 class="font-mincho font-semibold text-base">ネット横断検索・手動追加</h3>
+              <p class="text-xs text-brand-muted">資生堂, Curel, Melano CC, ReFa, Aujua 等のカタログ検索 & 直打ち追加</p>
+            </div>
+
+            <div class="flex gap-2">
+              <div class="relative flex-1">
+                <input id="pouchSearchInput" type="text" placeholder="例: メラノCC 薬用しみ対策美容液" 
+                       class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-brand-bg border border-brand-border text-xs focus:outline-none focus:border-brand-accent">
+                <span class="absolute left-3 top-2.5 text-brand-muted text-xs">🔍</span>
+              </div>
+              <button onclick="executePouchSearch()" type="button" class="px-4 py-2.5 rounded-xl bg-brand-accent text-white text-xs font-semibold hover:bg-brand-accentDark transition-all">
+                検索
+              </button>
+            </div>
+
+            <!-- Search Results Output -->
+            <div id="pouchSearchResults" class="space-y-2"></div>
+          </div>
+
+          <!-- 3. CURRENT POUCH ITEM LIST CARD -->
+          <div class="rounded-3xl bg-white p-5 border border-brand-border shadow-sm space-y-3">
+            <div class="flex items-center justify-between border-b border-brand-border/50 pb-3">
+              <div>
+                <h3 class="font-mincho font-semibold text-lg">マイポーチ（登録済みアイテム）</h3>
+                <p id="pouchCountText" class="text-xs text-brand-muted">合計 0 点登録中</p>
+              </div>
+              <span class="text-xs text-brand-accent font-serif italic">My Collection</span>
+            </div>
+
+            <!-- Items Container -->
+            <div id="myPouchItemsList" class="space-y-3">
+              <!-- Javascript dynamic items -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- SUB-TAB 2: CARE ROUTINE MATRIX & SAFETY (#pouchContentCare) -->
+        <div id="pouchContentCare" class="hidden space-y-5">
+          
+          <!-- 2x2 CARE ROUTINE MATRIX -->
+          <div class="rounded-3xl bg-white p-5 border border-brand-border shadow-sm space-y-4">
+            <div class="border-b border-brand-border/50 pb-3">
+              <span class="text-[10px] font-semibold uppercase tracking-widest text-brand-accent block mb-1">Matrix Prescriptions</span>
+              <h3 class="font-mincho font-semibold text-lg">朝夜 × 体調・時間別の最適重ね順</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- AM Matrix -->
+              <div class="p-4 rounded-2xl bg-amber-50/50 border border-amber-200/60 space-y-2">
+                <h4 class="font-mincho font-semibold text-sm text-amber-900 flex items-center justify-between">
+                  <span>☀️ 朝のルーティン</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded bg-white text-amber-800 font-sans">UV＆抗酸化</span>
+                </h4>
+                <div id="matrixAmContent" class="text-xs text-brand-ink space-y-1.5"></div>
+              </div>
+
+              <!-- PM Matrix -->
+              <div class="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-200/60 space-y-2">
+                <h4 class="font-mincho font-semibold text-sm text-indigo-900 flex items-center justify-between">
+                  <span>🌙 夜のルーティン</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded bg-white text-indigo-800 font-sans">ターンオーバー＆高修復</span>
+                </h4>
+                <div id="matrixPmContent" class="text-xs text-brand-ink space-y-1.5"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- INGREDIENT COMBINATION SAFETY RULES -->
+          <div class="rounded-3xl bg-white p-5 border border-brand-border shadow-sm space-y-3">
+            <h3 class="font-mincho font-semibold text-base flex items-center gap-1.5">
+              <span>⚠️</span> 成分併用のアドバイス＆NGルール
+            </h3>
+            <div id="ingredientSafetyAdvice" class="p-4 rounded-2xl bg-brand-bg border border-brand-border text-xs leading-relaxed space-y-2">
+              <!-- Javascript dynamic safety checks -->
+            </div>
+          </div>
+
+          <!-- 30-SECOND LIVE CARE TIMER WITH AUDIO CHIME -->
+          <div class="rounded-3xl bg-gradient-to-br from-brand-accent to-brand-accentDark p-5 text-white shadow-md text-center space-y-3">
+            <h3 class="font-mincho font-semibold text-lg">⏱️ 30秒 浸透＆ハンドプレス・タイマー</h3>
+            <p class="text-xs text-white/80">美容液や乳液をじっくり肌になじませる贅沢な時間</p>
+            
+            <div id="timerDisplay" class="font-serif text-4xl font-bold tracking-widest my-2">00:30</div>
+
+            <div class="flex justify-center gap-3">
+              <button id="btnStartTimer" onclick="toggleCareTimer()" type="button" class="px-6 py-2.5 rounded-xl bg-white text-brand-accent font-semibold text-xs shadow hover:bg-amber-50 transition-all">
+                ▶️ タイマースタート
+              </button>
+              <button onclick="resetCareTimer()" type="button" class="px-4 py-2.5 rounded-xl bg-white/20 text-white text-xs font-medium border border-white/30 hover:bg-white/30 transition-all">
+                リセット
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 3: CONSULTATION ROOMS (#viewRooms)     -->
+      <!-- ========================================== -->
+      <section id="viewRooms" class="app-view space-y-5">
+        
+        <div class="border-b border-brand-border/60 pb-3">
+          <span class="text-[10px] uppercase tracking-widest font-semibold text-brand-accent block mb-1">Expert Counselors</span>
+          <h2 class="font-mincho text-2xl font-semibold">4名の専属ビューティースペシャリスト</h2>
+          <p class="text-xs text-brand-muted mt-1">お悩みやテーマに合わせて専門家をご指名ください</p>
+        </div>
+
+        <!-- 4 SPECIALIST CARDS MATRIX -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+          <!-- Specialist 1: Kanzaki -->
+          <div onclick="enterChatRoom('kanzaki')" class="group cursor-pointer relative rounded-3xl overflow-hidden border border-brand-border shadow-sm hover:shadow-md transition-all bg-white">
+            <div class="h-44 w-full relative overflow-hidden bg-brand-bg">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80" 
+                   alt="神崎 恵美" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+              <div class="absolute bottom-3 left-3 right-3 text-white">
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-brand-accent text-white font-sans font-medium">総合美肌・習慣</span>
+                <h3 class="font-mincho text-lg font-semibold mt-1">神崎 恵美</h3>
+              </div>
+            </div>
+            <div class="p-3.5 text-xs text-brand-muted">
+              「年齢を重ねるごとに艶めく、日々の心地よいスキンケア習慣をご提案します。」
+            </div>
+          </div>
+
+          <!-- Specialist 2: Kuroki -->
+          <div onclick="enterChatRoom('kuroki')" class="group cursor-pointer relative rounded-3xl overflow-hidden border border-brand-border shadow-sm hover:shadow-md transition-all bg-white">
+            <div class="h-44 w-full relative overflow-hidden bg-brand-bg">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80" 
+                   alt="黒木 蓮司" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+              <div class="absolute bottom-3 left-3 right-3 text-white">
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-white font-sans font-medium">皮膚科学・成分解析</span>
+                <h3 class="font-mincho text-lg font-semibold mt-1">黒木 蓮司</h3>
+              </div>
+            </div>
+            <div class="p-3.5 text-xs text-brand-muted">
+              「レチノールやナイアシンアミドなど、科学的根拠に基づく最適な成分配合を助言。」
+            </div>
+          </div>
+
+          <!-- Specialist 3: Reo & Rin -->
+          <div onclick="enterChatRoom('reorin')" class="group cursor-pointer relative rounded-3xl overflow-hidden border border-brand-border shadow-sm hover:shadow-md transition-all bg-white">
+            <div class="h-44 w-full relative overflow-hidden bg-brand-bg">
+              <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80" 
+                   alt="玲央 & 凛" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+              <div class="absolute bottom-3 left-3 right-3 text-white">
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-800 text-white font-sans font-medium">ヘア＆大人メイク</span>
+                <h3 class="font-mincho text-lg font-semibold mt-1">玲央 & 凛</h3>
+              </div>
+            </div>
+            <div class="p-3.5 text-xs text-brand-muted">
+              「大人のくすみを払うカラー選定と、髪のツヤを引き立てるスタイリング。」
+            </div>
+          </div>
+
+          <!-- Specialist 4: Aoi -->
+          <div onclick="enterChatRoom('aoi')" class="group cursor-pointer relative rounded-3xl overflow-hidden border border-brand-border shadow-sm hover:shadow-md transition-all bg-white">
+            <div class="h-44 w-full relative overflow-hidden bg-brand-bg">
+              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80" 
+                   alt="蒼" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+              <div class="absolute bottom-3 left-3 right-3 text-white">
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-800 text-white font-sans font-medium">インナーケア・睡眠</span>
+                <h3 class="font-mincho text-lg font-semibold mt-1">蒼 (Aoi)</h3>
+              </div>
+            </div>
+            <div class="p-3.5 text-xs text-brand-muted">
+              「睡眠の質、ハーブティー、腸内環境から整える身体の内側からの美しさ。」
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ========================================== -->
+      <!-- INLINE SPECIALIST CHAT ROOM (#viewChat)   -->
+      <!-- ========================================== -->
+      <section id="viewChat" class="app-view space-y-4">
+        
+        <!-- Chat Header & Room Switcher Pills -->
+        <div class="rounded-2xl bg-white p-3 border border-brand-border shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <button onclick="switchTab('rooms')" type="button" class="text-xs text-brand-accent flex items-center gap-1 font-medium hover:underline">
+              <span>←</span> スペシャリスト一覧へ
+            </button>
+            <span id="chatActiveRoomName" class="font-mincho font-semibold text-sm">神崎 恵美 相談室</span>
+          </div>
+
+          <!-- Room Avatar Pills -->
+          <div class="flex gap-2 overflow-x-auto pb-1 pt-1">
+            <button onclick="enterChatRoom('kanzaki')" type="button" class="flex-shrink-0 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs bg-brand-bg border border-brand-border hover:border-brand-accent">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80" class="w-5 h-5 rounded-full object-cover">
+              <span>神崎</span>
+            </button>
+            <button onclick="enterChatRoom('kuroki')" type="button" class="flex-shrink-0 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs bg-brand-bg border border-brand-border hover:border-brand-accent">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80" class="w-5 h-5 rounded-full object-cover">
+              <span>黒木</span>
+            </button>
+            <button onclick="enterChatRoom('reorin')" type="button" class="flex-shrink-0 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs bg-brand-bg border border-brand-border hover:border-brand-accent">
+              <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80" class="w-5 h-5 rounded-full object-cover">
+              <span>玲央&凛</span>
+            </button>
+            <button onclick="enterChatRoom('aoi')" type="button" class="flex-shrink-0 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs bg-brand-bg border border-brand-border hover:border-brand-accent">
+              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80" class="w-5 h-5 rounded-full object-cover">
+              <span>蒼</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 DYNAMIC CONTEXT-AWARE ONE-TAP QUESTION BUTTONS -->
+        <div class="space-y-1.5">
+          <span class="text-[10px] uppercase tracking-widest text-brand-muted font-medium px-1">本日の文脈から提案するワンタップ質問</span>
+          <div id="chatQuickQuestions" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <!-- Javascript dynamic question buttons -->
+          </div>
+        </div>
+
+        <!-- CHAT MESSAGES LOG CONTAINER -->
+        <div id="chatMessagesBox" class="h-80 sm:h-96 overflow-y-auto rounded-3xl bg-white p-4 border border-brand-border shadow-inner space-y-4">
+          <!-- Javascript dynamic messages -->
+        </div>
+
+        <!-- CHAT INPUT & SPEECH CONTROLS -->
+        <div class="rounded-2xl bg-white p-2.5 border border-brand-border shadow-sm flex items-center gap-2">
+          <button id="btnVoiceInput" onclick="toggleVoiceRecognition()" type="button" title="音声入力"
+                  class="p-2.5 rounded-xl bg-brand-bg border border-brand-border text-brand-muted hover:text-brand-accent transition-all">
+            🎤
+          </button>
+          
+          <input id="chatTextInput" type="text" placeholder="ご相談内容や気になる成分を入力…" 
+                 onkeydown="if(event.key==='Enter') sendChatMessage()"
+                 class="flex-1 py-2 px-3 text-xs bg-transparent focus:outline-none text-brand-ink">
+
+          <button onclick="sendChatMessage()" type="button" 
+                  class="px-4 py-2.5 rounded-xl bg-brand-accent text-white font-semibold text-xs hover:bg-brand-accentDark transition-all flex items-center gap-1">
+            <span>送信</span>
+          </button>
+        </div>
+
+      </section>
+
+      <!-- ========================================== -->
+      <!-- TAB 4: SETTINGS VIEW (#viewSettings)      -->
+      <!-- ========================================== -->
+      <section id="viewSettings" class="app-view space-y-5">
+        
+        <div class="border-b border-brand-border/60 pb-3">
+          <span class="text-[10px] uppercase tracking-widest font-semibold text-brand-accent block mb-1">Preferences & Diagnostics</span>
+          <h2 class="font-mincho text-2xl font-semibold">設定 & Diagnostics</h2>
+        </div>
+
+        <!-- PROFILE & AGE CARD -->
+        <div class="rounded-3xl bg-white p-5 border border-brand-border shadow-sm space-y-3">
+          <div class="flex justify-between items-center border-b border-brand-border/50 pb-2">
+            <h3 class="font-mincho font-semibold text-base">プロフィール設定</h3>
+            <button onclick="openProfileModal()" type="button" class="text-xs text-brand-accent font-medium hover:underline">
+              編集
+            </button>
+          </div>
+          <div class="text-xs space-y-1.5 text-brand-ink">
+            <p><span class="text-brand-muted">お名前 / 呼び名:</span> <span id="settingsUserName" class="font-semibold">ゲスト</span></p>
+            <p><span class="text-brand-muted">スタイル:</span> <span id="settingsUserStyle" class="font-semibold">女性向け</span></p>
+            <p><span class="text-brand-muted">生年月日 / 実年齢:</span> <span id="settingsUserBirth" class="font-semibold">未設定</span></p>
+            <p><span class="text-brand-muted">重点ケアお悩み:</span> <span id="settingsUserFocus" class="font-semibold">ハリ・ツヤ</span></p>
+          </div>
+
+          <button onclick="reopenOnboarding()" type="button" class="w-full mt-2 py-2 rounded-xl bg-brand-bg border border-brand-border text-xs text-brand-muted hover:text-brand-ink font-medium">
+            👋 初期お出迎え画面を再表示する
+          </button>
+        </div>
+
+        <!-- 1. GOOGLE AI STUDIO REAL CLICKABLE API KEY CARD -->
+        <div class="rounded-3xl bg-white p-5 border border-brand-accent/40 shadow-sm space-y-4">
+          <div class="border-b border-brand-border/50 pb-2">
+            <span class="text-[10px] uppercase tracking-widest font-semibold text-brand-accent block mb-1">Google Gemini API Connection</span>
+            <h3 class="font-mincho font-semibold text-base">APIキー設定 & ワンタップ接続</h3>
+          </div>
+
+          <p class="text-xs text-brand-muted leading-relaxed">
+            Google AI Studioで無料のAPIキーを取得すると、超高速なカメラ商品解析・AI肌診断・スペシャリスト相談室機能が即座にご利用いただけます。
+          </p>
+
+          <!-- Real Clickable HTML Anchor CTA Button -->
+          <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" 
+             class="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-brand-accent to-brand-accentDark text-white font-semibold text-xs shadow hover:opacity-95 transition-all text-center">
+            <span>🔑 Google AI Studioを開いてAPIキーを取得 ↗</span>
+          </a>
+
+          <!-- Visible Underlined URL -->
+          <div class="text-[11px] text-brand-muted bg-brand-bg p-2.5 rounded-xl border border-brand-border break-all">
+            直リンク: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" class="text-brand-accent underline hover:text-brand-accentDark">https://aistudio.google.com/apikey</a>
+          </div>
+
+          <!-- 1-Tap Fallback Copy Link Button -->
+          <button onclick="copyApiKeyUrl()" type="button" class="w-full py-2 rounded-xl bg-brand-bg border border-brand-border text-brand-ink text-xs font-medium hover:bg-brand-border/40 transition-all flex items-center justify-center gap-1.5">
+            <span>📋</span> 取得URLをコピー（ブラウザで開かない時用）
+          </button>
+
+          <!-- Input & Buttons -->
+          <div class="space-y-2 pt-2">
+            <label class="block text-xs font-semibold text-brand-ink">Gemini API Key (AIzaSy...):</label>
+            <div class="flex gap-2">
+              <input id="settingsApiKeyInput" type="password" placeholder="AIzaSy..." 
+                     class="flex-1 py-2 px-3 text-xs rounded-xl bg-brand-bg border border-brand-border focus:outline-none focus:border-brand-accent">
+              <button onclick="pasteFromClipboard('settingsApiKeyInput')" type="button" class="px-3 py-2 rounded-xl bg-brand-bg border border-brand-border text-xs text-brand-muted hover:text-brand-ink">
+                📋 貼り付け
+              </button>
+            </div>
+            
+            <button id="btnSaveApiKey" onclick="testAndSaveApiKey()" type="button" class="w-full py-3 rounded-2xl bg-brand-accent text-white font-semibold text-xs shadow hover:bg-brand-accentDark transition-all">
+              ✅ 接続テストして保存 (gemini-2.5-flash / fallback 2.0)
+            </button>
+            <p id="apiKeyTestStatus" class="text-xs font-medium text-center hidden"></p>
+          </div>
+        </div>
+
+        <!-- 2. SPOUSE INVITE & GAS CLOUD SYNC CARD -->
+        <div class="rounded-3xl bg-white p-5 border border-brand-border shadow-sm space-y-3">
+          <h3 class="font-mincho font-semibold text-base">クラウド連携＆奥様へのAI接続共有</h3>
+          <p class="text-xs text-brand-muted leading-relaxed">
+            設定したGemini APIキーと共有データを暗号化URLにし、ご家族の端末へ1タップで共有可能です。
+          </p>
+
+          <button onclick="generateSpouseInviteLink()" type="button" class="w-full py-3 rounded-2xl bg-emerald-800 text-white font-semibold text-xs shadow hover:bg-emerald-900 transition-all flex items-center justify-center gap-2">
+            <span>💌</span> 奥様へAI接続済み招待リンクをコピー
+          </button>
+        </div>
+
+        <!-- 3. CAMERA & AI DIAGNOSTIC SELF-CHECK TOOL -->
+        <div class="rounded-3xl bg-white p-5 border border-brand-border shadow-sm space-y-3">
+          <div class="flex items-center justify-between border-b border-brand-border/50 pb-2">
+            <h3 class="font-mincho font-semibold text-base">🔧 カメラ・AI動作セルフチェック</h3>
+            <button onclick="runDiagnostics()" type="button" class="text-xs px-3 py-1 rounded-full bg-brand-accent text-white font-medium hover:bg-brand-accentDark">
+              診断実行
+            </button>
+          </div>
+
+          <div id="diagnosticResults" class="space-y-2 text-xs">
+            <div class="p-2.5 rounded-xl bg-brand-bg flex justify-between items-center">
+              <span>1. HTML DOM & Label Binding</span>
+              <span id="diagDom" class="font-semibold text-brand-muted">未判定</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-brand-bg flex justify-between items-center">
+              <span>2. Camera getUserMedia Support</span>
+              <span id="diagCam" class="font-semibold text-brand-muted">未判定</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-brand-bg flex justify-between items-center">
+              <span>3. Canvas JPEG Compressor Pipeline</span>
+              <span id="diagCanvas" class="font-semibold text-brand-muted">未判定</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-brand-bg flex justify-between items-center">
+              <span>4. Gemini Vision API Connection</span>
+              <span id="diagAi" class="font-semibold text-brand-muted">未判定</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- BACKDROP MOTION TOGGLE & DATA BACKUP -->
+        <div class="rounded-3xl bg-white p-5 border border-brand-border shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h4 class="font-mincho font-semibold text-sm">背景のゆるやかな動き (Ken Burns)</h4>
+              <p class="text-xs text-brand-muted">美しい景色の視覚効果</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input id="backdropToggle" type="checkbox" checked onchange="toggleBackdropMotion(this.checked)" class="sr-only peer">
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-accent"></div>
+            </label>
+          </div>
+
+          <div class="border-t border-brand-border/40 pt-3 flex gap-2">
+            <button onclick="exportUserData()" type="button" class="flex-1 py-2.5 rounded-xl bg-brand-bg border border-brand-border text-xs font-medium text-brand-ink hover:bg-brand-border/30">
+              📥 データバックアップ
+            </button>
+            <button onclick="importUserData()" type="button" class="flex-1 py-2.5 rounded-xl bg-brand-bg border border-brand-border text-xs font-medium text-brand-ink hover:bg-brand-border/30">
+              📤 データ復元
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- FIXED FROSTED BOTTOM NAVIGATION BAR        -->
+    <!-- ========================================== -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 max-w-md md:max-w-xl lg:max-w-2xl mx-auto glass-panel border-t border-brand-border/80 px-2 py-2">
+      <div class="grid grid-cols-4 text-center">
+
+        <!-- Tab 1: Home -->
+        <button id="navTabHome" onclick="switchTab('home')" type="button" class="flex flex-col items-center py-1 transition-all text-brand-accent font-semibold">
+          <svg class="w-7 h-7 stroke-current" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+          <span class="text-[11px] mt-1 tracking-tight">ホーム</span>
+        </button>
+
+        <!-- Tab 2: Pouch -->
+        <button id="navTabPouch" onclick="switchTab('pouch')" type="button" class="flex flex-col items-center py-1 transition-all text-brand-muted hover:text-brand-ink">
+          <svg class="w-7 h-7 stroke-current" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+          <span class="text-[11px] mt-1 tracking-tight">ポーチ</span>
+        </button>
+
+        <!-- Tab 3: Rooms -->
+        <button id="navTabRooms" onclick="switchTab('rooms')" type="button" class="flex flex-col items-center py-1 transition-all text-brand-muted hover:text-brand-ink">
+          <svg class="w-7 h-7 stroke-current" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+          <span class="text-[11px] mt-1 tracking-tight">相談室</span>
+        </button>
+
+        <!-- Tab 4: Settings -->
+        <button id="navTabSettings" onclick="switchTab('settings')" type="button" class="flex flex-col items-center py-1 transition-all text-brand-muted hover:text-brand-ink">
+          <svg class="w-7 h-7 stroke-current" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <span class="text-[11px] mt-1 tracking-tight">設定</span>
+        </button>
+
+      </div>
+    </nav>
+
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL 1: FROSTED ONBOARDING WELCOME SCREEN  -->
+  <!-- ========================================== -->
+  <div id="authOnboardingScreen" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(255, 253, 250, 0.84); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
+    <div class="max-w-md w-full bg-white/95 rounded-3xl p-6 border border-brand-border shadow-2xl space-y-5">
+      <div class="text-center space-y-1">
+        <span class="font-serif italic text-3xl tracking-widest text-brand-accent font-semibold block">LUMIÈRE</span>
+        <h2 class="font-mincho font-semibold text-lg">パーソナル美容スタジオへようこそ</h2>
+        <p class="text-xs text-brand-muted">あなたの年齢・環境・手持ちコスメに寄り添う専用カルテを作成します</p>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <!-- 1. Name -->
+        <div>
+          <label class="block font-semibold mb-1">お名前 / 呼び名:</label>
+          <input id="onboardName" type="text" placeholder="例: 雅美 (Masami)" 
+                 class="w-full p-3 rounded-xl bg-brand-bg border border-brand-border focus:outline-none focus:border-brand-accent">
+        </div>
+
+        <!-- 2. Style Mode -->
+        <div>
+          <label class="block font-semibold mb-1">パーソナルスタイル:</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" id="btnStyleFemale" onclick="setOnboardStyle('female')" class="p-3 rounded-xl border border-brand-accent bg-amber-50/50 text-brand-accent font-semibold text-center">
+              ✨ 女性向けエディトリアル
+            </button>
+            <button type="button" id="btnStyleMale" onclick="setOnboardStyle('male')" class="p-3 rounded-xl border border-brand-border bg-white text-brand-muted font-semibold text-center">
+              👔 男性向けエディトリアル
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Birthday Selector (Auto Age Calculation) -->
+        <div>
+          <label class="block font-semibold mb-1">生年月日 (実年齢を自動算出):</label>
+          <div class="grid grid-cols-3 gap-2">
+            <select id="onboardYear" onchange="updateCalculatedAgeNotice()" class="p-2.5 rounded-xl bg-brand-bg border border-brand-border text-xs"></select>
+            <select id="onboardMonth" onchange="updateCalculatedAgeNotice()" class="p-2.5 rounded-xl bg-brand-bg border border-brand-border text-xs"></select>
+            <select id="onboardDay" onchange="updateCalculatedAgeNotice()" class="p-2.5 rounded-xl bg-brand-bg border border-brand-border text-xs"></select>
+          </div>
+          <p id="onboardCalculatedAgeText" class="text-[11px] text-brand-accent font-medium mt-1 text-right">推定年齢: 42 歳</p>
+        </div>
+
+        <!-- 4. Skin Focus Care -->
+        <div>
+          <label class="block font-semibold mb-1">重点的にケアしたいお悩み:</label>
+          <select id="onboardFocus" class="w-full p-3 rounded-xl bg-brand-bg border border-brand-border">
+            <option value="ハリ・ツヤ・乾燥小じわケア">ハリ・ツヤ・乾燥小じわケア</option>
+            <option value="毛穴の目立ち・皮脂バランス">毛穴の目立ち・皮脂バランス</option>
+            <option value="シミ・くすみ・透明感向上">シミ・くすみ・透明感向上</option>
+            <option value="敏感肌・バリア機能補強">敏感肌・バリア機能補強</option>
+            <option value="大人のエイジング総合ケア">大人のエイジング総合ケア</option>
+          </select>
+        </div>
+      </div>
+
+      <button onclick="submitOnboarding()" type="button" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-brand-accent to-brand-accentDark text-white font-semibold text-sm shadow-lg hover:opacity-95 transition-all">
+        ✨ 美のスタジオをはじめる
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL 2: LIVE IN-APP VIEWFINDER CAMERA     -->
+  <!-- ========================================== -->
+  <div id="liveCameraModal" class="hidden fixed inset-0 z-50 bg-black/95 flex flex-col justify-between p-4">
+    <!-- Camera Top Bar -->
+    <div class="flex items-center justify-between text-white z-10">
+      <span id="liveCamTitle" class="font-mincho text-sm">カメラでパッケージ撮影</span>
+      <button onclick="closeLiveCamera()" type="button" class="px-3 py-1.5 rounded-full bg-white/20 text-xs">
+        ✕ 閉じる
+      </button>
+    </div>
+
+    <!-- Video Feed & Framing Box -->
+    <div class="relative flex-1 my-4 rounded-3xl overflow-hidden bg-gray-900 flex items-center justify-center">
+      <video id="liveVideoFeed" playsinline autoplay muted class="w-full h-full object-cover"></video>
+      <canvas id="offscreenCamCanvas" class="hidden"></canvas>
+
+      <!-- Overlay Framing Target -->
+      <div class="absolute inset-8 border-2 border-dashed border-white/60 rounded-3xl pointer-events-none flex flex-col justify-between p-4">
+        <span class="text-[10px] text-white/80 bg-black/40 px-2 py-0.5 rounded self-start">枠内にコスメを収めてください</span>
+      </div>
+
+      <!-- UserMedia Blocked Fallback Notice -->
+      <div id="camBlockedNotice" class="hidden absolute inset-0 bg-black/90 p-6 flex flex-col items-center justify-center text-center text-white space-y-4">
+        <span class="text-3xl">📷</span>
+        <h3 class="font-mincho text-base font-semibold">カメラアクセスが制限されています</h3>
+        <p class="text-xs text-gray-300 leading-relaxed">
+          OSのファイルカメラボタンをご利用いただくか、写真アルバムから選択してください。
+        </p>
+        <div class="flex flex-col gap-2 w-full max-w-xs">
+          <label for="pouchCameraInput" onclick="closeLiveCamera()" class="w-full py-2.5 rounded-xl bg-brand-accent text-white text-xs font-semibold text-center cursor-pointer">
+            📷 OSカメラを起動する
+          </label>
+          <label for="pouchGalleryInput" onclick="closeLiveCamera()" class="w-full py-2.5 rounded-xl bg-white/20 text-white text-xs font-medium text-center cursor-pointer">
+            🖼️ 写真アルバムから選ぶ
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Camera Bottom Controls -->
+    <div class="flex items-center justify-around text-white z-10 pb-4">
+      <button onclick="toggleCameraFacing()" type="button" class="p-3 rounded-full bg-white/20 text-xl">
+        🔄
+      </button>
+      <button onclick="captureLiveSnap()" type="button" class="w-16 h-16 rounded-full border-4 border-white bg-brand-accent flex items-center justify-center shadow-lg active:scale-90 transition-transform">
+        <span class="w-12 h-12 rounded-full bg-white"></span>
+      </button>
+      <div class="w-10"></div> <!-- Balance spacing -->
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL 3: VISUAL AI SKIN CHECK MODAL        -->
+  <!-- ========================================== -->
+  <div id="skinCheckModal" class="hidden fixed inset-0 z-50 glass-modal flex items-center justify-center p-4 overflow-y-auto">
+    <div class="max-w-md w-full bg-white rounded-3xl p-5 border border-brand-border shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      
+      <div class="flex justify-between items-center border-b border-brand-border/50 pb-3">
+        <div>
+          <span class="text-[10px] uppercase tracking-widest font-semibold text-brand-accent block">AI Skin Analyzer</span>
+          <h3 class="font-mincho font-semibold text-lg">視覚的 AI 肌コンディション解析</h3>
+        </div>
+        <button onclick="closeSkinCheckModal()" type="button" class="text-brand-muted hover:text-brand-ink text-xl">✕</button>
+      </div>
+
+      <!-- Dual Mode Camera Triggers for Skin -->
+      <div class="grid grid-cols-3 gap-2">
+        <label for="skinCameraInput" class="cursor-pointer py-2.5 px-2 rounded-xl bg-brand-accent text-white text-xs font-semibold text-center shadow">
+          📷 自撮り撮影
+        </label>
+        <input id="skinCameraInput" type="file" accept="image/*" capture="user" class="sr-only" onchange="handleSkinPhotoSelect(event)">
+
+        <button onclick="openLiveCamera('skin')" type="button" class="py-2.5 px-2 rounded-xl bg-brand-bg border border-brand-accent/40 text-brand-ink text-xs font-semibold text-center">
+          🎥 ライブ
+        </button>
+
+        <label for="skinGalleryInput" class="cursor-pointer py-2.5 px-2 rounded-xl bg-brand-bg border border-brand-border text-brand-muted text-xs font-semibold text-center">
+          🖼️ アルバム
+        </label>
+        <input id="skinGalleryInput" type="file" accept="image/*" class="sr-only" onchange="handleSkinPhotoSelect(event)">
+      </div>
+
+      <!-- Analysis Results Box -->
+      <div id="skinAnalysisResultArea" class="hidden space-y-4">
+        
+        <!-- Score & Age Header -->
+        <div class="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 flex items-center justify-between">
+          <div>
+            <span class="text-[10px] text-amber-800 font-semibold uppercase">推定肌年齢 vs 実年齢</span>
+            <div class="flex items-baseline gap-2 mt-0.5">
+              <span id="skinEstAge" class="font-serif text-3xl font-bold text-brand-accent">38歳</span>
+              <span id="skinRealAge" class="text-xs text-brand-muted">(実年齢 42歳)</span>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] text-amber-800 font-semibold block">総合スキンスコア</span>
+            <span id="skinScore" class="font-serif text-3xl font-bold text-emerald-700">88</span><span class="text-xs text-brand-muted"> /100</span>
+          </div>
+        </div>
+
+        <!-- 5-AXIS SVG RADAR CHART CONTAINER -->
+        <div class="bg-brand-bg/60 p-4 rounded-2xl border border-brand-border flex flex-col items-center justify-center">
+          <span class="text-xs font-semibold text-brand-ink mb-2">5軸肌質コンディション評価</span>
+          <svg id="skinRadarSvg" class="w-56 h-56" viewBox="0 0 200 200">
+            <!-- SVG Radar background and polygons populated via JS -->
+          </svg>
+        </div>
+
+        <!-- Visual Observations & Action Advice -->
+        <div class="space-y-2 text-xs">
+          <div class="p-3 rounded-xl bg-white border border-brand-border">
+            <span class="font-semibold text-brand-accent block mb-1">🔍 視覚的観察ポイント</span>
+            <p id="skinVisualObs" class="text-brand-ink leading-relaxed">
+              目元と頬の高い位置に豊かなハリと自然なツヤが確認できます。水分保持力が高く、バリア機能が安定しています。
+            </p>
+          </div>
+
+          <div class="p-3 rounded-xl bg-brand-sage/50 border border-brand-sageBorder">
+            <span class="font-semibold text-brand-sageText block mb-1">✨ 今夜＆明朝の優先アクション</span>
+            <p id="skinPriorityAction" class="text-brand-ink leading-relaxed">
+              保湿美容液を重点的にハンドプレスし、明朝はUVカット効果の高い下地を重ねてください。
+            </p>
+          </div>
+        </div>
+
+        <!-- Send to Consultation Room CTA Button -->
+        <button onclick="sendSkinCheckToChat()" type="button" class="w-full py-3 rounded-2xl bg-brand-accent text-white font-semibold text-xs shadow hover:bg-brand-accentDark transition-all">
+          💬 この診断結果をスペシャリスト相談室に送信する
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL 4: GOOGLE AI STUDIO API QUICK MODAL  -->
+  <!-- ========================================== -->
+  <div id="apiKeyQuickModal" class="hidden fixed inset-0 z-50 glass-modal flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-3xl p-6 border border-brand-border shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-brand-border/50 pb-2">
+        <h3 class="font-mincho font-semibold text-lg">🔑 Google AI Studio APIキー登録</h3>
+        <button onclick="closeApiKeyModal()" type="button" class="text-brand-muted hover:text-brand-ink text-xl">✕</button>
+      </div>
+
+      <p class="text-xs text-brand-muted leading-relaxed">
+        Google AI Studioで無料のAPIキーを取得し、下に貼り付けて接続テストを行ってください。
+      </p>
+
+      <!-- Prominent Bronze Primary CTA Anchor Button -->
+      <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" 
+         class="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-brand-accent to-brand-accentDark text-white font-semibold text-xs shadow hover:opacity-95 transition-all text-center">
+        <span>🔑 Google AI Studioを開いてAPIキーを取得 ↗</span>
+      </a>
+
+      <!-- Visible Underlined URL -->
+      <div class="text-[11px] text-brand-muted bg-brand-bg p-2.5 rounded-xl border border-brand-border break-all">
+        URL: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" class="text-brand-accent underline font-mono">https://aistudio.google.com/apikey</a>
+      </div>
+
+      <!-- 1-Tap Fallback Copy Link Button -->
+      <button onclick="copyApiKeyUrl()" type="button" class="w-full py-2 rounded-xl bg-brand-bg border border-brand-border text-brand-ink text-xs font-medium hover:bg-brand-border/40 transition-all">
+        📋 取得URLをコピー（開かない時用）
+      </button>
+
+      <div class="space-y-2 pt-1">
+        <div class="flex gap-2">
+          <input id="quickApiKeyInput" type="password" placeholder="AIzaSy..." 
+                 class="flex-1 py-2.5 px-3 text-xs rounded-xl bg-brand-bg border border-brand-border focus:outline-none focus:border-brand-accent">
+          <button onclick="pasteFromClipboard('quickApiKeyInput')" type="button" class="px-3 py-2.5 rounded-xl bg-brand-bg border border-brand-border text-xs text-brand-muted">
+            📋 貼付
+          </button>
+        </div>
+
+        <button onclick="testAndSaveQuickApiKey()" type="button" class="w-full py-3 rounded-2xl bg-brand-accent text-white font-semibold text-xs shadow hover:bg-brand-accentDark">
+          ✅ 接続テストして保存
+        </button>
+        <p id="quickApiKeyStatus" class="text-xs font-medium text-center hidden"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- EMBEDDED JAVASCRIPT APPLICATION CORE       -->
+  <!-- ========================================== -->
+  <script>
+    /* ==========================================
+       APPLICATION STATE MANAGEMENT
+       ========================================== */
+    const APP_STATE = {
+      user: {
+        id: '',
+        name: '雅美',
+        style: 'female',
+        birthYear: '1984',
+        birthMonth: '06',
+        birthDay: '15',
+        focus: 'ハリ・ツヤ・乾燥小じわケア',
+        calculatedAge: 42
+      },
+      apiKey: '',
+      activeModel: 'gemini-2.5-flash',
+      energyMode: 'full', // 'full' | 'easy'
+      pouch: [],
+      chatHistory: {
+        kanzaki: [],
+        kuroki: [],
+        reorin: [],
+        aoi: []
+      },
+      activeRoom: 'kanzaki',
+      lastCapturedPhotoBase64: null,
+      lastSkinPhotoBase64: null,
+      timer: {
+        seconds: 30,
+        interval: null,
+        isRunning: false
+      },
+      weather: null
+    };
+
+    // Hero Portrait Lists (Daily Rotated)
+    const HERO_PORTRAITS_FEMALE = [
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=1200&q=80'
+    ];
+    const HERO_PORTRAITS_MALE = [
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=1200&q=80'
+    ];
+
+    // Built-in Cosmetic Catalog for Offline / Grounding Fallback
+    const BUILTIN_COSMETIC_CATALOG = [
+      { name: 'メラノCC 薬用しみ対策美白美容液', brand: 'ロート製薬', category: '美容液', timing: '朝・夜', keyIngredients: '活性型ビタミンC, ビタミンE', hint: '朝の使用で紫外線ダメージ予防。' },
+      { name: 'キュレル 潤浸保湿 フェイスクリーム', brand: '花王 Curel', category: 'クリーム', timing: '朝・夜', keyIngredients: 'セラミド機能成分, ユーカリエキス', hint: '敏感肌のバリア機能を高める。' },
+      { name: 'オージュア イミュライズ ヘアトリートメント', brand: 'ミルボン Aujua', category: 'ヘアケア', timing: '夜', keyIngredients: 'CMADK, ロイシン', hint: '年齢毛の毛髪強度をケア。' },
+      { name: 'リファ カラットレイ (ReFa CARAT RAY)', brand: 'MTG ReFa', category: '美顔器', timing: '夜', keyIngredients: 'マイクロカレント', hint: 'フェイスラインの引き締め。' },
+      { name: 'ダヴ 吸着毛穴ケア 洗顔クレイ', brand: 'ユニリーバ Dove', category: '洗顔', timing: '朝・夜', keyIngredients: '天然ホワイトクレイ, アミノ酸洗顔成分', hint: '毛穴汚れをやさしく吸着。' }
+    ];
+
+    /* ==========================================
+       INITIALIZATION & ON LOAD HANDLERS
+       ========================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      loadLocalStorageData();
+      checkUrlHashInvite();
+      initDateDropdowns();
+      renderHeroPortrait();
+      updateCalculatedAge();
+      renderHomeDate();
+      renderHeaderAiPill();
+      refreshWeatherInfo(false);
+      renderPouchItems();
+      renderCareMatrix();
+      renderChatQuestions();
+
+      // Check onboarding state
+      if (!localStorage.getItem('lumiere_onboarded')) {
+        openOnboarding();
+      }
+
+      // Default active tab: Home
+      switchTab('home');
+    });
+
+    /* ==========================================
+       LOCAL STORAGE & URL SPOUSE INVITE PARSER
+       ========================================== */
+    function loadLocalStorageData() {
+      // Unique user ID
+      let uid = localStorage.getItem('lumiere_uid');
+      if (!uid) {
+        uid = 'lumiere_u_' + Math.random().toString(36).substring(2, 9);
+        localStorage.setItem('lumiere_uid', uid);
+      }
+      APP_STATE.user.id = uid;
+
+      // User profile
+      const savedUser = localStorage.getItem('lumiere_user');
+      if (savedUser) {
+        try { APP_STATE.user = Object.assign(APP_STATE.user, JSON.parse(savedUser)); } catch (e) {}
+      }
+
+      // API Key
+      const savedKey = localStorage.getItem('lumiere_apikey');
+      if (savedKey) APP_STATE.apiKey = savedKey;
+
+      // Pouch
+      const savedPouch = localStorage.getItem('lumiere_pouch');
+      if (savedPouch) {
+        try { APP_STATE.pouch = JSON.parse(savedPouch); } catch (e) {}
+      } else {
+        // Default luxury starter items
+        APP_STATE.pouch = [
+          { id: 'item_1', name: 'メラノCC 薬用しみ対策美容液', brand: 'ロート製薬', category: '美容液', timing: '朝・夜', keyIngredients: '活性型ビタミンC', status: '◎ とても合う' },
+          { id: 'item_2', name: 'キュレル 潤浸保湿クリーム', brand: '花王', category: 'クリーム', timing: '夜', keyIngredients: 'セラミド機能成分', status: '◎ とても合う' }
+        ];
+        savePouchData();
+      }
+    }
+
+    function savePouchData() {
+      localStorage.setItem('lumiere_pouch', JSON.stringify(APP_STATE.pouch));
+      renderPouchItems();
+      renderHomeRoutine();
+      renderCareMatrix();
+    }
+
+    // Spouse URL Invite Parser (#connect=<base64url>)
+    function checkUrlHashInvite() {
+      const hash = window.location.hash;
+      if (hash && hash.startsWith('#connect=')) {
+        try {
+          const encoded = hash.replace('#connect=', '');
+          const decoded = atob(encoded);
+          const data = JSON.parse(decoded);
+
+          if (data.apiKey) {
+            APP_STATE.apiKey = data.apiKey;
+            localStorage.setItem('lumiere_apikey', data.apiKey);
+            showToast('💌 奥様からのAI接続設定を読み込みました！', 'success');
+          }
+        } catch (err) {
+          console.error('Invite hash parse error:', err);
+        } finally {
+          // Immediately scrub URL hash using replaceState
+          window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
+      }
+    }
+
+    function generateSpouseInviteLink() {
+      if (!APP_STATE.apiKey) {
+        showToast('APIキーが未設定です。先にAPIキーを設定してください。', 'error');
+        openApiKeyModal();
+        return;
+      }
+      const payload = {
+        apiKey: APP_STATE.apiKey,
+        timestamp: Date.now()
+      };
+      const base64 = btoa(JSON.stringify(payload));
+      const inviteUrl = window.location.origin + window.location.pathname + '#connect=' + base64;
+      
+      copyToClipboardText(inviteUrl);
+      showToast('💌 奥様用AI接続招待リンクをコピーしました！LINE等で送信してください。', 'success');
+    }
+
+    /* ==========================================
+       SCREEN NAVIGATION & TAB SWITCHING
+       ========================================== */
+    function switchTab(tabId, subTabId) {
+      // Hide all views strictly
+      document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active'));
+      
+      const targetView = document.getElementById('view' + tabId.charAt(0).toUpperCase() + tabId.slice(1));
+      if (targetView) targetView.classList.add('active');
+
+      // Update Nav Bar Indicators
+      const tabs = ['home', 'pouch', 'rooms', 'settings'];
+      tabs.forEach(t => {
+        const navBtn = document.getElementById('navTab' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (navBtn) {
+          if (t === tabId) {
+            navBtn.className = 'flex flex-col items-center py-1 transition-all text-brand-accent font-semibold';
+          } else {
+            navBtn.className = 'flex flex-col items-center py-1 transition-all text-brand-muted hover:text-brand-ink';
+          }
+        }
+      });
+
+      // Special sub-tab handling for Pouch
+      if (tabId === 'pouch' && subTabId) {
+        switchPouchSubTab(subTabId);
+      }
+
+      // Scroll to top
+      window.scrollTo(0, 0);
+      requestAnimationFrame(() => window.scrollTo(0, 0));
+    }
+
+    /* ==========================================
+       HERO PORTRAIT & EDITORIAL DISPLAY
+       ========================================== */
+    function renderHeroPortrait() {
+      const todayIndex = new Date().getDate() % 7;
+      const list = APP_STATE.user.style === 'male' ? HERO_PORTRAITS_MALE : HERO_PORTRAITS_FEMALE;
+      const src = list[todayIndex];
+
+      const img = document.getElementById('heroPortraitImg');
+      const fallback = document.getElementById('heroSvgFallback');
+      if (img) {
+        img.src = src;
+        img.classList.remove('hidden');
+        if (fallback) fallback.classList.add('hidden');
+      }
+    }
+
+    function handleHeroImgError(img) {
+      img.classList.add('hidden');
+      const fallback = document.getElementById('heroSvgFallback');
+      if (fallback) fallback.classList.remove('hidden');
+    }
+
+    function renderHomeDate() {
+      const now = new Date();
+      const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+      const dateStr = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')} ${days[now.getDay()]}`;
+      const el = document.getElementById('homeDateDisplay');
+      if (el) el.textContent = dateStr;
+
+      const focusEl = document.getElementById('homeFocusCareText');
+      if (focusEl) focusEl.textContent = APP_STATE.user.focus;
+
+      const greetEl = document.getElementById('homeGreetingTitle');
+      if (greetEl) {
+        greetEl.textContent = `${APP_STATE.user.name}様、美しさの深まりへ`;
+      }
+    }
+
+    /* ==========================================
+       WEATHER PRESCRIPTION ENGINE (OPEN-METEO)
+       ========================================== */
+    async function refreshWeatherInfo(userTriggered) {
+      if (userTriggered) showToast('最新の気象情報を取得中…', 'info');
+
+      // Default Toyokawa, Aichi
+      let lat = 34.8256;
+      let lon = 137.3725;
+      let locationName = '愛知県 豊川市';
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => { fetchWeatherData(pos.coords.latitude, pos.coords.longitude, '現在地 (GPS連動)'); },
+          err => { fetchWeatherData(lat, lon, locationName); },
+          { timeout: 5000 }
+        );
+      } else {
+        fetchWeatherData(lat, lon, locationName);
+      }
+    }
+
+    async function fetchWeatherData(lat, lon, locationName) {
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,surface_pressure,weather_code,uv_index`;
+        const res = await fetch(url);
+        const data = await res.json();
+        const current = data.current;
+
+        APP_STATE.weather = current;
+
+        document.getElementById('weatherLocation').textContent = locationName;
+        document.getElementById('weatherTemp').textContent = `${Math.round(current.temperature_2m)} ℃`;
+        document.getElementById('weatherHumidity').textContent = `${Math.round(current.relative_humidity_2m)} %`;
+        document.getElementById('weatherUv').textContent = `${current.uv_index || 2.4}`;
+
+        generateWeatherAdvice(current);
+      } catch (e) {
+        document.getElementById('weatherAdviceBox').innerHTML = '⚠️ 気象データの取得に失敗しました。標準スキンケアアドバイスを表示中。';
+      }
+    }
+
+    function generateWeatherAdvice(w) {
+      const hum = w.relative_humidity_2m;
+      const temp = w.temperature_2m;
+      const uv = w.uv_index || 2.5;
+
+      let advice = '';
+      if (hum < 45) {
+        advice = `現在湿度が ${hum}% と低下しています。大気乾燥による水分蒸散を防ぐため、セラミド配合の保湿クリームを多めにハンドプレスしましょう。`;
+      } else if (uv > 4) {
+        advice = `UVインデックスが ${uv} とやや高めです。日焼け止めの塗り直しとビタミンC美容液による抗酸化ケアが効果的です。`;
+      } else {
+        advice = `気温 ${temp}℃, 湿度 ${hum}% の穏やかなコンディションです。保湿とターンオーバーを促す基本ルーティンを丁寧に維持しましょう。`;
+      }
+
+      document.getElementById('weatherAdviceBox').innerHTML = `
+        <span class="font-semibold text-brand-accent block mb-0.5">💡 今日の環境スキンケアアドバイス</span>
+        ${advice}
+      `;
+    }
+
+    /* ==========================================
+       DAILY ROUTINE & ENERGY MODE SWITCH
+       ========================================== */
+    function setEnergyMode(mode) {
+      APP_STATE.energyMode = mode;
+
+      const btnFull = document.getElementById('energyModeFull');
+      const btnEasy = document.getElementById('energyModeEasy');
+
+      if (mode === 'full') {
+        btnFull.className = 'px-3 py-1 rounded-lg text-xs font-medium transition-all bg-white text-brand-accent shadow-sm';
+        btnEasy.className = 'px-3 py-1 rounded-lg text-xs font-medium transition-all text-brand-muted hover:text-brand-ink';
+      } else {
+        btnEasy.className = 'px-3 py-1 rounded-lg text-xs font-medium transition-all bg-white text-brand-accent shadow-sm';
+        btnFull.className = 'px-3 py-1 rounded-lg text-xs font-medium transition-all text-brand-muted hover:text-brand-ink';
+      }
+
+      renderHomeRoutine();
+    }
+
+    function renderHomeRoutine() {
+      const morningBox = document.getElementById('homeMorningRoutineList');
+      const eveningBox = document.getElementById('homeEveningRoutineList');
+
+      // Filter valid items (excluding △ 合わなかった)
+      const validItems = APP_STATE.pouch.filter(i => i.status !== '△ 合わなかった');
+
+      if (APP_STATE.energyMode === 'easy') {
+        morningBox.innerHTML = `
+          <div class="p-3 rounded-xl bg-amber-50/70 border border-amber-200/60 text-xs flex items-center justify-between">
+            <div>
+              <span class="font-semibold text-brand-ink block">時短オールインワン保湿 ＆ UVカット</span>
+              <span class="text-[10px] text-brand-muted">おつかれモード: 1ステップでしっかりバリア保護</span>
+            </div>
+            <span class="text-xs px-2 py-0.5 rounded bg-white text-amber-800 font-medium">30秒</span>
+          </div>
+        `;
+        eveningBox.innerHTML = `
+          <div class="p-3 rounded-xl bg-indigo-50/70 border border-indigo-200/60 text-xs flex items-center justify-between">
+            <div>
+              <span class="font-semibold text-brand-ink block">温感クレンジング ＆ セラミド厚塗りマスク</span>
+              <span class="text-[10px] text-brand-muted">おつかれモード: 摩擦を避けて早期就寝</span>
+            </div>
+            <span class="text-xs px-2 py-0.5 rounded bg-white text-indigo-800 font-medium">1分</span>
+          </div>
+        `;
+        return;
+      }
+
+      // Full mode
+      const morningItems = validItems.filter(i => !i.timing || i.timing.includes('朝'));
+      const eveningItems = validItems.filter(i => !i.timing || i.timing.includes('夜'));
+
+      morningBox.innerHTML = morningItems.length > 0 ? morningItems.map((item, idx) => `
+        <div class="p-2.5 rounded-xl bg-brand-bg border border-brand-border/60 text-xs flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-5 h-5 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-serif text-[10px] font-bold">${idx+1}</span>
+            <div>
+              <span class="font-medium text-brand-ink block">${item.name}</span>
+              <span class="text-[10px] text-brand-muted">${item.category} | ${item.keyIngredients || '保湿成分'}</span>
+            </div>
+          </div>
+          <span class="text-[10px] text-brand-accent font-medium">${item.status}</span>
+        </div>
+      `).join('') : '<p class="text-xs text-brand-muted italic p-2">朝用アイテムが未登録です。ポーチから追加してください。</p>';
+
+      eveningBox.innerHTML = eveningItems.length > 0 ? eveningItems.map((item, idx) => `
+        <div class="p-2.5 rounded-xl bg-brand-bg border border-brand-border/60 text-xs flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-800 flex items-center justify-center font-serif text-[10px] font-bold">${idx+1}</span>
+            <div>
+              <span class="font-medium text-brand-ink block">${item.name}</span>
+              <span class="text-[10px] text-brand-muted">${item.category} | ${item.keyIngredients || '修復成分'}</span>
+            </div>
+          </div>
+          <span class="text-[10px] text-brand-accent font-medium">${item.status}</span>
+        </div>
+      `).join('') : '<p class="text-xs text-brand-muted italic p-2">夜用アイテムが未登録です。ポーチから追加してください。</p>';
+    }
+
+    /* ==========================================
+       POUCH MANAGEMENT & SEARCH ENGINE
+       ========================================== */
+    function switchPouchSubTab(subId) {
+      const btn1 = document.getElementById('pouchSubTab1');
+      const btn2 = document.getElementById('pouchSubTab2');
+      const contentManage = document.getElementById('pouchContentManage');
+      const contentCare = document.getElementById('pouchContentCare');
+
+      if (subId === 'tab-manage') {
+        btn1.className = 'flex-1 py-2.5 text-xs font-semibold rounded-xl transition-all bg-brand-accent text-white shadow';
+        btn2.className = 'flex-1 py-2.5 text-xs font-semibold rounded-xl transition-all text-brand-muted hover:text-brand-ink';
+        contentManage.classList.remove('hidden');
+        contentCare.classList.add('hidden');
+      } else {
+        btn2.className = 'flex-1 py-2.5 text-xs font-semibold rounded-xl transition-all bg-brand-accent text-white shadow';
+        btn1.className = 'flex-1 py-2.5 text-xs font-semibold rounded-xl transition-all text-brand-muted hover:text-brand-ink';
+        contentCare.classList.remove('hidden');
+        contentManage.classList.add('hidden');
+      }
+    }
+
+    function renderPouchItems() {
+      const listContainer = document.getElementById('myPouchItemsList');
+      const countText = document.getElementById('pouchCountText');
+
+      if (!listContainer) return;
+      countText.textContent = `合計 ${APP_STATE.pouch.length} 点登録中`;
+
+      if (APP_STATE.pouch.length === 0) {
+        listContainer.innerHTML = '<p class="text-xs text-brand-muted text-center py-6 border border-dashed border-brand-border rounded-2xl">ポーチにコスメが登録されていません。<br>カメラ撮影またはキーワード検索で追加しましょう。</p>';
+        return;
+      }
+
+      listContainer.innerHTML = APP_STATE.pouch.map(item => `
+        <div class="p-3.5 rounded-2xl bg-brand-bg/80 border border-brand-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] px-2 py-0.5 rounded bg-brand-accent/10 text-brand-accent font-semibold">${item.category || '化粧品'}</span>
+              <span class="text-xs font-semibold text-brand-ink">${item.name}</span>
+            </div>
+            <p class="text-[11px] text-brand-muted">ブランド: ${item.brand || '不明'} | タイミング: ${item.timing || '朝・夜'}</p>
+            <p class="text-[11px] text-brand-accent font-medium">主要成分: ${item.keyIngredients || '保湿成分'}</p>
+          </div>
+
+          <!-- Status Rating Buttons & Remove -->
+          <div class="flex items-center gap-1.5 self-end sm:self-auto">
+            <button onclick="updatePouchStatus('${item.id}', '◎ とても合う')" type="button" class="px-2 py-1 rounded-lg text-[10px] font-medium border ${item.status==='◎ とても合う' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-white text-brand-muted border-brand-border'}">◎ 合う</button>
+            <button onclick="updatePouchStatus('${item.id}', '○ ふつう')" type="button" class="px-2 py-1 rounded-lg text-[10px] font-medium border ${item.status==='○ ふつう' ? 'bg-amber-100 text-amber-800 border-amber-300' : 'bg-white text-brand-muted border-brand-border'}">○ 普通</button>
+            <button onclick="updatePouchStatus('${item.id}', '△ 合わなかった')" type="button" class="px-2 py-1 rounded-lg text-[10px] font-medium border ${item.status==='△ 合わなかった' ? 'bg-rose-100 text-rose-800 border-rose-300' : 'bg-white text-brand-muted border-brand-border'}">△ 不可</button>
+            <button onclick="deletePouchItem('${item.id}')" type="button" class="p-1 text-brand-muted hover:text-rose-600 text-xs ml-1" title="削除">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updatePouchStatus(id, newStatus) {
+      const item = APP_STATE.pouch.find(i => i.id === id);
+      if (item) {
+        item.status = newStatus;
+        savePouchData();
+        showToast('相性評価を更新しました', 'info');
+      }
+    }
+
+    function deletePouchItem(id) {
+      APP_STATE.pouch = APP_STATE.pouch.filter(i => i.id !== id);
+      savePouchData();
+      showToast('アイテムをマイポーチから削除しました', 'info');
+    }
+
+    function executePouchSearch() {
+      const query = document.getElementById('pouchSearchInput').value.trim();
+      const resultsBox = document.getElementById('pouchSearchResults');
+
+      if (!query) {
+        showToast('検索キーワードを入力してください', 'warning');
+        return;
+      }
+
+      // Catalog fuzzy match
+      const matched = BUILTIN_COSMETIC_CATALOG.filter(c => 
+        c.name.includes(query) || c.brand.includes(query) || c.category.includes(query)
+      );
+
+      let html = '';
+      if (matched.length > 0) {
+        html = matched.map((item, idx) => `
+          <div class="p-3 rounded-xl bg-amber-50/60 border border-amber-200 text-xs flex justify-between items-center">
+            <div>
+              <span class="font-semibold text-brand-ink block">${item.name}</span>
+              <span class="text-[10px] text-brand-muted">${item.brand} | ${item.keyIngredients}</span>
+            </div>
+            <button onclick="addCatalogItemToPouch(${idx})" type="button" class="px-3 py-1.5 rounded-lg bg-brand-accent text-white font-medium text-[11px] shadow">
+              ＋ 追加
+            </button>
+          </div>
+        `).join('');
+      } else {
+        html = `
+          <div class="p-3.5 rounded-xl bg-white border border-brand-border text-xs space-y-2">
+            <p class="text-brand-ink font-medium">「${query}」の即時カタログ一致がありませんでした。直接追加しますか？</p>
+            <button onclick="addCustomQueryToPouch('${query}')" type="button" class="w-full py-2 rounded-lg bg-brand-accent text-white font-semibold text-xs">
+              ✨ 「${query}」をカスタムコスメとしてポーチに登録
+            </button>
+          </div>
+        `;
+      }
+
+      resultsBox.innerHTML = html;
+    }
+
+    function addCatalogItemToPouch(catalogIdx) {
+      const target = BUILTIN_COSMETIC_CATALOG[catalogIdx];
+      const newItem = {
+        id: 'item_' + Date.now(),
+        name: target.name,
+        brand: target.brand,
+        category: target.category,
+        timing: target.timing,
+        keyIngredients: target.keyIngredients,
+        status: '◎ とても合う'
+      };
+      APP_STATE.pouch.push(newItem);
+      savePouchData();
+      showToast(`「${target.name}」をマイポーチに登録しました！`, 'success');
+      document.getElementById('pouchSearchResults').innerHTML = '';
+    }
+
+    function addCustomQueryToPouch(nameStr) {
+      const newItem = {
+        id: 'item_' + Date.now(),
+        name: nameStr,
+        brand: 'カスタム',
+        category: '化粧品',
+        timing: '朝・夜',
+        keyIngredients: '保湿成分',
+        status: '◎ とても合う'
+      };
+      APP_STATE.pouch.push(newItem);
+      savePouchData();
+      showToast(`「${nameStr}」をポーチに登録しました！`, 'success');
+      document.getElementById('pouchSearchResults').innerHTML = '';
+    }
+
+    /* ==========================================
+       CARE MATRIX & INGREDIENT SAFETY RULES
+       ========================================== */
+    function renderCareMatrix() {
+      const amBox = document.getElementById('matrixAmContent');
+      const pmBox = document.getElementById('matrixPmContent');
+      const safetyBox = document.getElementById('ingredientSafetyAdvice');
+
+      if (!amBox || !pmBox) return;
+
+      amBox.innerHTML = `
+        <p>1. 洗顔 (クレイ/アミノ酸)</p>
+        <p>2. ビタミンC配合化粧水 / 美容液 (抗酸化)</p>
+        <p>3. 軽量乳液 ＆ 日焼け止め (UV保護)</p>
+      `;
+
+      pmBox.innerHTML = `
+        <p>1. クレンジング ＆ しっかり洗顔</p>
+        <p>2. レチノール / ナイアシンアミド美容液</p>
+        <p>3. 高保湿セラミドナイトクリーム</p>
+      `;
+
+      // Check ingredient conflicts in user pouch
+      const hasRetinol = APP_STATE.pouch.some(i => i.keyIngredients && i.keyIngredients.includes('レチノール'));
+      const hasVitaminC = APP_STATE.pouch.some(i => i.keyIngredients && i.keyIngredients.includes('ビタミンC'));
+
+      let safetyHtml = '';
+      if (hasRetinol && hasVitaminC) {
+        safetyHtml = `
+          <div class="p-3 rounded-xl bg-amber-100/80 border border-amber-300 text-amber-900">
+            <span class="font-semibold block mb-0.5">⚠️ ビタミンC ＆ レチノールの併用アドバイス</span>
+            高濃度ビタミンCと純粋レチノールを同時に塗布すると刺激感が出る場合があります。<strong>「朝: ビタミンC」/「夜: レチノール」</strong>と時間帯を分けてご使用ください。
+          </div>
+        `;
+      } else {
+        safetyHtml = `
+          <p class="text-brand-muted">現在、マイポーチの登録アイテム間で深刻な成分バッティング（NG重複）は見られません。安心して毎日のケアをお続けいただけます。</p>
+        `;
+      }
+      safetyBox.innerHTML = safetyHtml;
+    }
+
+    /* ==========================================
+       30-SECOND LIVE CARE TIMER
+       ========================================== */
+    function toggleCareTimer() {
+      const btn = document.getElementById('btnStartTimer');
+      if (APP_STATE.timer.isRunning) {
+        clearInterval(APP_STATE.timer.interval);
+        APP_STATE.timer.isRunning = false;
+        btn.textContent = '▶️ タイマースタート';
+      } else {
+        APP_STATE.timer.isRunning = true;
+        btn.textContent = '⏸️ 一時停止';
+        APP_STATE.timer.interval = setInterval(() => {
+          APP_STATE.timer.seconds--;
+          updateTimerDisplay();
+          if (APP_STATE.timer.seconds <= 0) {
+            clearInterval(APP_STATE.timer.interval);
+            APP_STATE.timer.isRunning = false;
+            btn.textContent = '▶️ タイマースタート';
+            playChimeSound();
+            showToast('✨ 30秒ハンドプレス完了！角層へじんわり浸透しました。', 'success');
+          }
+        }, 1000);
+      }
+    }
+
+    function resetCareTimer() {
+      clearInterval(APP_STATE.timer.interval);
+      APP_STATE.timer.isRunning = false;
+      APP_STATE.timer.seconds = 30;
+      updateTimerDisplay();
+      document.getElementById('btnStartTimer').textContent = '▶️ タイマースタート';
+    }
+
+    function updateTimerDisplay() {
+      const sec = APP_STATE.timer.seconds;
+      document.getElementById('timerDisplay').textContent = `00:${String(sec).padStart(2,'0')}`;
+    }
+
+    function playChimeSound() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+        osc.frequency.exponentialRampToValueAtTime(1046.50, ctx.currentTime + 0.8); // C6
+
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 1.2);
+      } catch (e) {}
+    }
+
+    /* ==========================================
+       CAMERA ENGINE & BULLETPROOF IMAGE PROCESSING
+       ========================================== */
+    let currentCamSource = 'pouch'; // 'pouch' | 'skin'
+    let liveVideoStream = null;
+    let cameraFacing = 'environment';
+
+    function handlePouchPhotoSelect(e) {
+      const file = e.target.files && e.target.files[0];
+      if (file) {
+        e.target.value = ''; // Reset input value so consecutive captures work
+        processAndAnalyzeImage(file, 'pouch');
+      }
+    }
+
+    function handleSkinPhotoSelect(e) {
+      const file = e.target.files && e.target.files[0];
+      if (file) {
+        e.target.value = '';
+        processAndAnalyzeImage(file, 'skin');
+      }
+    }
+
+    async function processAndAnalyzeImage(file, targetType) {
+      const scanResultArea = document.getElementById(targetType === 'pouch' ? 'pouchScanResultArea' : 'skinAnalysisResultArea');
+      const progressText = document.getElementById(targetType === 'pouch' ? 'pouchProgressText' : 'skinProgressText');
+
+      if (targetType === 'pouch') {
+        scanResultArea.classList.remove('hidden');
+        progressText.textContent = '1. 写真読み込み中…';
+      } else {
+        openSkinCheckModal();
+        document.getElementById('skinAnalysisResultArea').classList.remove('hidden');
+      }
+
+      try {
+        // Step 1: Read File to Base64 & Canvas Resize
+        const base64Jpeg = await resizeImageToJpegBase64(file, 1024, 0.82);
+
+        if (targetType === 'pouch') {
+          APP_STATE.lastCapturedPhotoBase64 = base64Jpeg;
+          document.getElementById('pouchScanPreviewImg').src = base64Jpeg;
+          document.getElementById('pouchPhotoPreviewBox').classList.remove('hidden');
+          progressText.textContent = '2. 高画質圧縮(1024px)完了 → 3. AIパッケージ解析中…';
+
+          analyzePouchPhoto(base64Jpeg);
+        } else {
+          APP_STATE.lastSkinPhotoBase64 = base64Jpeg;
+          analyzeSkinPhoto(base64Jpeg);
+        }
+      } catch (err) {
+        showToast('画像の処理に失敗しました: ' + err.message, 'error');
+      }
+    }
+
+    function resizeImageToJpegBase64(fileOrBlob, maxDim = 1024, quality = 0.82) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          const img = new Image();
+          img.onload = () => {
+            let w = img.width;
+            let h = img.height;
+            if (w > maxDim || h > maxDim) {
+              if (w > h) {
+                h = Math.round((h * maxDim) / w);
+                w = maxDim;
+              } else {
+                w = Math.round((w * maxDim) / h);
+                h = maxDim;
+              }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.onerror = reject;
+          img.src = evt.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(fileOrBlob);
+      });
+    }
+
+    /* Live Camera Modal Viewfinder Handler */
+    async function openLiveCamera(source) {
+      currentCamSource = source;
+      const modal = document.getElementById('liveCameraModal');
+      const video = document.getElementById('liveVideoFeed');
+      const blockedNotice = document.getElementById('camBlockedNotice');
+
+      modal.classList.remove('hidden');
+      blockedNotice.classList.add('hidden');
+
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('getUserMedia not supported');
+        }
+        liveVideoStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: cameraFacing } },
+          audio: false
+        });
+        video.srcObject = liveVideoStream;
+      } catch (err) {
+        console.warn('Camera stream blocked:', err);
+        blockedNotice.classList.remove('hidden');
+      }
+    }
+
+    function closeLiveCamera() {
+      if (liveVideoStream) {
+        liveVideoStream.getTracks().forEach(track => track.stop());
+        liveVideoStream = null;
+      }
+      document.getElementById('liveCameraModal').classList.add('hidden');
+    }
+
+    function toggleCameraFacing() {
+      cameraFacing = cameraFacing === 'environment' ? 'user' : 'environment';
+      closeLiveCamera();
+      openLiveCamera(currentCamSource);
+    }
+
+    function captureLiveSnap() {
+      const video = document.getElementById('liveVideoFeed');
+      const canvas = document.getElementById('offscreenCamCanvas');
+
+      if (!video || !video.videoWidth) return;
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const base64Jpeg = canvas.toDataURL('image/jpeg', 0.82);
+      closeLiveCamera();
+
+      if (currentCamSource === 'pouch') {
+        APP_STATE.lastCapturedPhotoBase64 = base64Jpeg;
+        document.getElementById('pouchScanResultArea').classList.remove('hidden');
+        document.getElementById('pouchScanPreviewImg').src = base64Jpeg;
+        document.getElementById('pouchPhotoPreviewBox').classList.remove('hidden');
+        document.getElementById('pouchProgressText').textContent = '2. ライブスナップショット完了 → 3. AI解析中…';
+
+        analyzePouchPhoto(base64Jpeg);
+      } else {
+        APP_STATE.lastSkinPhotoBase64 = base64Jpeg;
+        openSkinCheckModal();
+        analyzeSkinPhoto(base64Jpeg);
+      }
+    }
+
+    /* ==========================================
+       AI VISION RECOGNITION (POUCH & SKIN)
+       ========================================== */
+    async function analyzePouchPhoto(base64Jpeg) {
+      const container = document.getElementById('pouchParsedItemsContainer');
+      const progressText = document.getElementById('pouchProgressText');
+
+      if (!APP_STATE.apiKey) {
+        progressText.textContent = '❌ AI未接続: APIキーが未設定です。';
+        container.innerHTML = `
+          <div class="p-4 rounded-xl bg-amber-100/90 border border-amber-300 text-xs text-amber-900 space-y-2">
+            <p class="font-semibold">🔑 Google Gemini APIキーが接続されていません</p>
+            <p>写真のAIパッケージ解析には無料のAPIキーが必要です。1タップで設定できます。</p>
+            <div class="flex gap-2 pt-1">
+              <button onclick="openApiKeyModal()" type="button" class="px-4 py-2 rounded-xl bg-brand-accent text-white font-semibold text-xs shadow">
+                🔑 APIキーを設定する
+              </button>
+              <button onclick="addCustomQueryToPouch('手動登録コスメ')" type="button" class="px-3 py-2 rounded-xl bg-white border border-brand-border text-xs text-brand-muted">
+                手動で追加
+              </button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const cleanBase64 = base64Jpeg.replace(/^data:image\/\w+;base64,/, '');
+      const prompt = `あなたは高級美容スタジオのAIアナリストです。
+添付画像内の化粧品・スキンケア用品・ヘアケア・美顔器等をすべて識別し、以下のJSON形式のみで出力してください。
+
+JSON構造:
+{
+  "items": [
+    {
+      "name": "商品名",
+      "brand": "ブランド名",
+      "category": "美容液/クリーム/洗顔/化粧水/ヘアケア等",
+      "timing": "朝・夜 / 朝 / 夜",
+      "keyIngredients": "主要成分",
+      "usageHint": "短評"
+    }
+  ]
+}`;
+
+      try {
+        const jsonResult = await callGeminiVisionApi(prompt, cleanBase64);
+        let items = [];
+        if (jsonResult && jsonResult.items && Array.isArray(jsonResult.items)) {
+          items = jsonResult.items;
+        } else if (Array.isArray(jsonResult)) {
+          items = jsonResult;
+        }
+
+        if (items.length === 0) {
+          throw new Error('解析結果から商品を特定できませんでした。');
+        }
+
+        progressText.textContent = '✨ AIパッケージ解析成功！';
+
+        container.innerHTML = `
+          <div class="space-y-2 pt-2">
+            <span class="text-xs font-semibold text-brand-ink block">解析された化粧品 (${items.length}点):</span>
+            ${items.map((item, i) => `
+              <div class="p-3 rounded-xl bg-white border border-brand-border flex items-start gap-2.5 text-xs">
+                <input type="checkbox" id="pouchParsedItem_${i}" checked class="mt-1 accent-brand-accent">
+                <div class="flex-1">
+                  <label for="pouchParsedItem_${i}" class="font-semibold text-brand-ink block cursor-pointer">${item.name}</label>
+                  <p class="text-[10px] text-brand-muted">${item.brand || '不明'} | ${item.category || 'コスメ'} | ${item.keyIngredients || '保湿'}</p>
+                </div>
+              </div>
+            `).join('')}
+            <button onclick="registerSelectedParsedItems(${JSON.stringify(items).replace(/"/g, '&quot;')})" type="button" 
+                    class="w-full py-3 rounded-2xl bg-gradient-to-r from-brand-accent to-brand-accentDark text-white font-semibold text-xs shadow hover:opacity-95 transition-all mt-2">
+              ✨ 選択した商品をマイポーチへ一括登録
+            </button>
+          </div>
+        `;
+      } catch (err) {
+        progressText.textContent = '⚠️ 解析エラー';
+        container.innerHTML = `
+          <div class="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-900 space-y-2">
+            <p class="font-semibold">AI解析エラー: ${err.message}</p>
+            <div class="flex gap-2">
+              <button onclick="retryPouchAnalysis()" type="button" class="px-3 py-1.5 rounded-lg bg-rose-800 text-white font-medium text-xs">
+                🔄 この写真で再解析
+              </button>
+              <button onclick="openApiKeyModal()" type="button" class="px-3 py-1.5 rounded-lg bg-white border border-rose-300 text-xs">
+                🔑 キー再確認
+              </button>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function retryPouchAnalysis() {
+      if (APP_STATE.lastCapturedPhotoBase64) {
+        document.getElementById('pouchProgressText').textContent = '3. AI再解析を実行中…';
+        analyzePouchPhoto(APP_STATE.lastCapturedPhotoBase64);
+      } else {
+        showToast('再解析用の写真データがありません。撮影し直してください。', 'warning');
+      }
+    }
+
+    function registerSelectedParsedItems(items) {
+      let registeredCount = 0;
+      items.forEach((item, i) => {
+        const checkbox = document.getElementById(`pouchParsedItem_${i}`);
+        if (checkbox && checkbox.checked) {
+          APP_STATE.pouch.push({
+            id: 'item_' + Date.now() + '_' + i,
+            name: item.name,
+            brand: item.brand || '一括登録',
+            category: item.category || '化粧品',
+            timing: item.timing || '朝・夜',
+            keyIngredients: item.keyIngredients || '保湿成分',
+            status: '◎ とても合う'
+          });
+          registeredCount++;
+        }
+      });
+
+      if (registeredCount > 0) {
+        savePouchData();
+        showToast(`✨ ${registeredCount} 点のコスメをマイポーチに登録しました！`, 'success');
+        document.getElementById('pouchScanResultArea').classList.add('hidden');
+      } else {
+        showToast('登録する商品が選択されていません。', 'warning');
+      }
+    }
+
+    /* Visual Skin Check AI Vision Call */
+    async function analyzeSkinPhoto(base64Jpeg) {
+      const resultArea = document.getElementById('skinAnalysisResultArea');
+      resultArea.classList.remove('hidden');
+
+      if (!APP_STATE.apiKey) {
+        document.getElementById('skinEstAge').textContent = '--歳';
+        document.getElementById('skinVisualObs').textContent = '🔑 Google AI Studio APIキーを入力すると、最新のGemini Visionモデルによる高精度な5軸肌解析が行われます。';
+        return;
+      }
+
+      const cleanBase64 = base64Jpeg.replace(/^data:image\/\w+;base64,/, '');
+      const prompt = `あなたは高級美容スタジオの皮膚分析AIです。実年齢 ${APP_STATE.user.calculatedAge} 歳のユーザーの顔写真を詳細解析し、以下のJSON形式で結果を返してください。
+
+JSON構造:
+{
+  "estimatedAge": 38,
+  "overallScore": 88,
+  "radar": {
+    "moisture": 90,
+    "radiance": 85,
+    "pore": 80,
+    "firmness": 88,
+    "clarity": 85
+  },
+  "visualObservations": "視覚的観察コメント",
+  "priorityAction": "優先処方アドバイス"
+}`;
+
+      try {
+        const res = await callGeminiVisionApi(prompt, cleanBase64);
+        if (res) {
+          document.getElementById('skinEstAge').textContent = `${res.estimatedAge || APP_STATE.user.calculatedAge}歳`;
+          document.getElementById('skinRealAge').textContent = `(実年齢 ${APP_STATE.user.calculatedAge}歳)`;
+          document.getElementById('skinScore').textContent = res.overallScore || 85;
+
+          if (res.visualObservations) document.getElementById('skinVisualObs').textContent = res.visualObservations;
+          if (res.priorityAction) document.getElementById('skinPriorityAction').textContent = res.priorityAction;
+
+          renderRadarChart(res.radar || { moisture: 85, radiance: 80, pore: 75, firmness: 85, clarity: 80 });
+        }
+      } catch (err) {
+        showToast('肌解析エラー: ' + err.message, 'error');
+      }
+    }
+
+    function renderRadarChart(radar) {
+      const svg = document.getElementById('skinRadarSvg');
+      if (!svg) return;
+
+      // 5-axis keys: Moisture, Radiance, Pore, Firmness, Clarity
+      const vals = [
+        radar.moisture || 80,
+        radar.radiance || 80,
+        radar.pore || 80,
+        radar.firmness || 80,
+        radar.clarity || 80
+      ];
+
+      const center = 100;
+      const radius = 70;
+      const angles = [ -Math.PI/2, -Math.PI/2 + (2*Math.PI/5), -Math.PI/2 + (4*Math.PI/5), -Math.PI/2 + (6*Math.PI/5), -Math.PI/2 + (8*Math.PI/5) ];
+
+      // Background web
+      let bgPolys = '';
+      [0.2, 0.4, 0.6, 0.8, 1.0].forEach(rRatio => {
+        const pts = angles.map(a => {
+          const x = center + radius * rRatio * Math.cos(a);
+          const y = center + radius * rRatio * Math.sin(a);
+          return `${x},${y}`;
+        }).join(' ');
+        bgPolys += `<polygon points="${pts}" fill="none" stroke="#EAE0D5" stroke-width="1"/>`;
+      });
+
+      // Data polygon
+      const dataPts = angles.map((a, idx) => {
+        const valRatio = (vals[idx] || 50) / 100;
+        const x = center + radius * valRatio * Math.cos(a);
+        const y = center + radius * valRatio * Math.sin(a);
+        return `${x},${y}`;
+      }).join(' ');
+
+      const labels = ['潤い', 'ツヤ', '毛穴', 'ハリ', '透明感'];
+      let labelSvg = angles.map((a, idx) => {
+        const lx = center + (radius + 18) * Math.cos(a);
+        const ly = center + (radius + 18) * Math.sin(a);
+        return `<text x="${lx}" y="${ly}" font-size="10" fill="#7D7168" text-anchor="middle" dominant-baseline="central" font-weight="600">${labels[idx]}</text>`;
+      }).join('');
+
+      svg.innerHTML = `
+        ${bgPolys}
+        <polygon points="${dataPts}" fill="rgba(140, 94, 60, 0.35)" stroke="#8C5E3C" stroke-width="2"/>
+        ${labelSvg}
+      `;
+    }
+
+    function sendSkinCheckToChat() {
+      closeSkinCheckModal();
+      switchTab('rooms');
+      enterChatRoom('kanzaki');
+
+      const estAge = document.getElementById('skinEstAge').textContent;
+      const score = document.getElementById('skinScore').textContent;
+      const obs = document.getElementById('skinVisualObs').textContent;
+
+      const msg = `【AI肌診断結果の共有】\n推定肌年齢: ${estAge} / スコア: ${score}点\n観察所見: ${obs}\nこの結果を踏まえた特別処方を教えてください。`;
+      document.getElementById('chatTextInput').value = msg;
+    }
+
+    /* Generic Gemini Vision API Call with Dual Model Fallback */
+    async function callGeminiVisionApi(promptText, base64Data) {
+      const apiKey = APP_STATE.apiKey;
+      if (!apiKey) throw new Error('API key is missing');
+
+      const payload = {
+        contents: [{
+          parts: [
+            { text: promptText },
+            { inlineData: { mimeType: 'image/jpeg', data: base64Data } }
+          ]
+        }]
+      };
+
+      let modelName = 'gemini-2.5-flash';
+      let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+
+      let response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        // Fallback to gemini-2.0-flash
+        modelName = 'gemini-2.0-flash';
+        apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+        response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      }
+
+      if (!response.ok) {
+        const errorJson = await response.json().catch(() => ({}));
+        throw new Error(errorJson.error?.message || `HTTP error ${response.status}`);
+      }
+
+      const resData = await response.json();
+      const text = resData.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) throw new Error('Model produced an empty text response.');
+
+      return safeExtractJson(text);
+    }
+
+    function safeExtractJson(rawText) {
+      try {
+        return JSON.parse(rawText);
+      } catch (e) {
+        const matched = rawText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+        if (matched && matched[1]) {
+          return JSON.parse(matched[1]);
+        }
+        // Attempt curly brace match
+        const firstBrace = rawText.indexOf('{');
+        const lastBrace = rawText.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace !== -1) {
+          return JSON.parse(rawText.substring(firstBrace, lastBrace + 1));
+        }
+        throw new Error('Failed to parse clean JSON from AI output');
+      }
+    }
+
+    /* ==========================================
+       4 SPECIALIST CONSULTATION ROOMS & CHAT
+       ========================================== */
+    const SPECIALISTS = {
+      kanzaki: { name: '神崎 恵美', title: '総合美肌・習慣', rolePrompt: 'あなたは親しみやすく上品な総合美容アドバイザー「神崎 恵美」です。大人の肌習慣、心地よいスキンケア、ライフスタイル全般について丁寧に助言してください。' },
+      kuroki: { name: '黒木 蓮司', title: '皮膚科学・成分解析', rolePrompt: 'あなたは論理的で信頼できる皮膚科学スペシャリスト「黒木 蓮司」です。レチノール、ナイアシンアミド、セラミド等の化学的根拠に基づいた成分指導を行ってください。' },
+      reorin: { name: '玲央 & 凛', title: 'ヘア＆大人メイク', rolePrompt: 'あなた達はトレンドと大人品位を熟知したプロチーム「玲央 & 凛」です。髪のツヤ・髪質改善・大人のくすみを払うメイク技術について提案してください。' },
+      aoi: { name: '蒼 (Aoi)', title: 'インナーケア・睡眠', rolePrompt: 'あなたは温かく穏やかなインナーケア専門家「蒼」です。睡眠の質、ハーブ、食事、腸内環境から素肌を美しく育てるアドバイスをしてください。' }
+    };
+
+    function enterChatRoom(roomId) {
+      APP_STATE.activeRoom = roomId;
+      const roomInfo = SPECIALISTS[roomId];
+
+      document.getElementById('chatActiveRoomName').textContent = `${roomInfo.name} 相談室`;
+      switchTab('chat');
+
+      // Initialize initial message if empty
+      if (APP_STATE.chatHistory[roomId].length === 0) {
+        APP_STATE.chatHistory[roomId].push({
+          role: 'model',
+          text: `いらっしゃいませ、${APP_STATE.user.name}様。${roomInfo.name}です。\n本日はどのようなお悩みや手持ちコスメのご相談でしょうか？`
+        });
+      }
+
+      renderChatLog();
+      renderChatQuestions();
+    }
+
+    function renderChatLog() {
+      const box = document.getElementById('chatMessagesBox');
+      const history = APP_STATE.chatHistory[APP_STATE.activeRoom] || [];
+
+      box.innerHTML = history.map(m => {
+        if (m.role === 'user') {
+          return `
+            <div class="flex flex-col items-end space-y-1">
+              <div class="max-w-[85%] p-3.5 rounded-2xl bg-brand-accent text-white text-xs leading-relaxed shadow">
+                ${escapeHtml(m.text)}
+              </div>
+              <span class="text-[9px] text-brand-muted">あなた</span>
+            </div>
+          `;
+        } else {
+          return `
+            <div class="flex flex-col items-start space-y-1">
+              <div class="max-w-[85%] p-3.5 rounded-2xl bg-brand-bg border border-brand-border text-brand-ink text-xs leading-relaxed shadow-sm">
+                <span class="font-semibold text-brand-accent block mb-1">${SPECIALISTS[APP_STATE.activeRoom].name}</span>
+                ${escapeHtml(m.text).replace(/\n/g, '<br>')}
+              </div>
+            </div>
+          `;
+        }
+      }).join('');
+
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function renderChatQuestions() {
+      const container = document.getElementById('chatQuickQuestions');
+      if (!container) return;
+
+      const pouchNames = APP_STATE.pouch.map(i => i.name).slice(0, 2).join('や');
+      const questions = [
+        `💡 マイポーチの「${pouchNames || 'コスメ'}」の順番はこれで合っていますか？`,
+        `🌤️ 今日の天気・湿度に合わせた特別保湿法は？`,
+        `✨ ${APP_STATE.user.calculatedAge}歳におすすめの${APP_STATE.user.focus}対策は？`,
+        `🌙 夜のスキンケアで一番重視すべきポイントは？`
+      ];
+
+      container.innerHTML = questions.map(q => `
+        <button onclick="quickAskQuestion('${q.replace(/'/g, "\\'")}')" type="button" 
+                class="p-2.5 rounded-xl bg-brand-bg/80 border border-brand-border text-left hover:border-brand-accent transition-all text-brand-ink truncate">
+          ${q}
+        </button>
+      `).join('');
+    }
+
+    function quickAskQuestion(qText) {
+      document.getElementById('chatTextInput').value = qText;
+      sendChatMessage();
+    }
+
+    async function sendChatMessage() {
+      const input = document.getElementById('chatTextInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const roomId = APP_STATE.activeRoom;
+      input.value = '';
+
+      // Append user message
+      APP_STATE.chatHistory[roomId].push({ role: 'user', text: text });
+      renderChatLog();
+
+      if (!APP_STATE.apiKey) {
+        setTimeout(() => {
+          APP_STATE.chatHistory[roomId].push({
+            role: 'model',
+            text: '🔑 AIとの会話にはGoogle Gemini APIキーが必要です。「設定」または上部ヘッダーの「AI未接続」から無料のAPIキーを設定してください。'
+          });
+          renderChatLog();
+        }, 500);
+        return;
+      }
+
+      try {
+        const spec = SPECIALISTS[roomId];
+        const pouchSummary = APP_STATE.pouch.map(i => `${i.name} (${i.category})`).join(', ');
+
+        const systemInstruction = `${spec.rolePrompt}
+ユーザープロフィール: 名前 ${APP_STATE.user.name}, 実年齢 ${APP_STATE.user.calculatedAge}歳, 重点ケア: ${APP_STATE.user.focus}.
+現在ポーチに登録されているコスメ: [${pouchSummary}].
+回答は簡潔・丁寧・エレガントな日本語で行ってください。`;
+
+        // Strict Alternating user/model Chat History Sanitization
+        const sanitizedContents = [];
+        const history = APP_STATE.chatHistory[roomId];
+        
+        history.forEach(m => {
+          const role = m.role === 'user' ? 'user' : 'model';
+          if (sanitizedContents.length === 0 || sanitizedContents[sanitizedContents.length - 1].role !== role) {
+            sanitizedContents.push({ role: role, parts: [{ text: m.text }] });
+          } else {
+            sanitizedContents[sanitizedContents.length - 1].parts[0].text += '\n' + m.text;
+          }
+        });
+
+        const replyText = await callGeminiChatApi(sanitizedContents, systemInstruction);
+        APP_STATE.chatHistory[roomId].push({ role: 'model', text: replyText });
+        renderChatLog();
+      } catch (err) {
+        APP_STATE.chatHistory[roomId].push({ role: 'model', text: `⚠️ エラーが発生しました: ${err.message}` });
+        renderChatLog();
+      }
+    }
+
+    async function callGeminiChatApi(contents, systemInstructionText) {
+      const apiKey = APP_STATE.apiKey;
+      let modelName = 'gemini-2.5-flash';
+
+      const payload = {
+        contents: contents,
+        systemInstruction: { parts: [{ text: systemInstructionText }] }
+      };
+
+      let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+
+      let res = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        // Fallback model
+        modelName = 'gemini-2.0-flash';
+        apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+        res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      }
+
+      if (!res.ok) {
+        const errorJson = await res.json().catch(() => ({}));
+        throw new Error(errorJson.error?.message || `HTTP Error ${res.status}`);
+      }
+
+      const data = await res.json();
+      return data.candidates?.[0]?.content?.parts?.[0]?.text || '恐れ入ります。応答の生成に失敗しました。';
+    }
+
+    /* Web Speech Recognition (ja-JP) Voice Input */
+    function toggleVoiceRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        showToast('お使いのブラウザは音声入力に対応していません。', 'warning');
+        return;
+      }
+
+      const btn = document.getElementById('btnVoiceInput');
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'ja-JP';
+      recognition.interimResults = false;
+
+      btn.classList.add('animate-pulse', 'text-rose-600', 'border-rose-400');
+      showToast('🎤 音声入力中… お話しください', 'info');
+
+      recognition.onresult = (e) => {
+        const transcript = e.results[0][0].transcript;
+        document.getElementById('chatTextInput').value = transcript;
+        btn.classList.remove('animate-pulse', 'text-rose-600', 'border-rose-400');
+        showToast('音声認識完了！', 'success');
+      };
+
+      recognition.onerror = () => {
+        btn.classList.remove('animate-pulse', 'text-rose-600', 'border-rose-400');
+        showToast('音声入力が中断されました。', 'warning');
+      };
+
+      recognition.start();
+    }
+
+    /* ==========================================
+       API KEY SETUP & LIVE TEST ENGINE
+       ========================================== */
+    function renderHeaderAiPill() {
+      const pill = document.getElementById('headerAiPill');
+      if (!pill) return;
+
+      if (APP_STATE.apiKey) {
+        pill.innerHTML = `
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span class="text-emerald-800 font-semibold">✦ AI接続済</span>
+        `;
+      } else {
+        pill.innerHTML = `
+          <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+          <span class="text-brand-accent font-semibold">🔑 AI未接続・1タップ設定</span>
+        `;
+      }
+
+      const settingsKeyInput = document.getElementById('settingsApiKeyInput');
+      if (settingsKeyInput) settingsKeyInput.value = APP_STATE.apiKey;
+    }
+
+    function openApiKeyModal() {
+      document.getElementById('apiKeyQuickModal').classList.remove('hidden');
+    }
+
+    function closeApiKeyModal() {
+      document.getElementById('apiKeyQuickModal').classList.add('hidden');
+    }
+
+    function copyApiKeyUrl() {
+      const url = 'https://aistudio.google.com/apikey';
+      copyToClipboardText(url);
+      showToast('📋 Google AI Studio URLをクリップボードにコピーしました！', 'success');
+    }
+
+    async function pasteFromClipboard(inputId) {
+      try {
+        let text = '';
+        if (navigator.clipboard && navigator.clipboard.readText) {
+          text = await navigator.clipboard.readText();
+        }
+        if (!text) {
+          showToast('クリップボードの読み取り権限がないか空です。手動でペーストしてください。', 'warning');
+          return;
+        }
+        document.getElementById(inputId).value = text.trim();
+        showToast('クリップボードから貼り付けました', 'info');
+      } catch (err) {
+        showToast('貼り付けに失敗しました。手動でCtrl+V / Command+Vを行ってください。', 'warning');
+      }
+    }
+
+    async function testAndSaveApiKey() {
+      const input = document.getElementById('settingsApiKeyInput');
+      const statusText = document.getElementById('apiKeyTestStatus');
+      const key = input.value.trim();
+
+      if (!key) {
+        showToast('APIキーを入力してください', 'warning');
+        return;
+      }
+
+      statusText.classList.remove('hidden');
+      statusText.className = 'text-xs font-medium text-center text-amber-700 animate-pulse';
+      statusText.textContent = '⏳ gemini-2.5-flash で接続テスト中…';
+
+      try {
+        const successModel = await runModelTestConnection(key);
+        APP_STATE.apiKey = key;
+        APP_STATE.activeModel = successModel;
+        localStorage.setItem('lumiere_apikey', key);
+
+        renderHeaderAiPill();
+        statusText.className = 'text-xs font-medium text-center text-emerald-700 font-semibold';
+        statusText.textContent = `✅ 接続テスト成功！ (${successModel} 利用可能)`;
+        showToast('🔑 APIキーを正常に保存しました！', 'success');
+      } catch (err) {
+        statusText.className = 'text-xs font-medium text-center text-rose-700 font-semibold';
+        statusText.textContent = `❌ 接続失敗: ${err.message}`;
+      }
+    }
+
+    async function testAndSaveQuickApiKey() {
+      const input = document.getElementById('quickApiKeyInput');
+      const statusText = document.getElementById('quickApiKeyStatus');
+      const key = input.value.trim();
+
+      if (!key) {
+        showToast('APIキーを入力してください', 'warning');
+        return;
+      }
+
+      statusText.classList.remove('hidden');
+      statusText.className = 'text-xs font-medium text-center text-amber-700 animate-pulse';
+      statusText.textContent = '⏳ 接続テスト実行中…';
+
+      try {
+        const successModel = await runModelTestConnection(key);
+        APP_STATE.apiKey = key;
+        APP_STATE.activeModel = successModel;
+        localStorage.setItem('lumiere_apikey', key);
+
+        renderHeaderAiPill();
+        statusText.className = 'text-xs font-medium text-center text-emerald-700 font-semibold';
+        statusText.textContent = `✅ 接続成功！`;
+        showToast('🔑 APIキーを保存しました！', 'success');
+        setTimeout(() => closeApiKeyModal(), 800);
+      } catch (err) {
+        statusText.className = 'text-xs font-medium text-center text-rose-700 font-semibold';
+        statusText.textContent = `❌ 接続失敗: ${err.message}`;
+      }
+    }
+
+    async function runModelTestConnection(key) {
+      // Test gemini-2.5-flash first
+      let testModel = 'gemini-2.5-flash';
+      let url = `https://generativelanguage.googleapis.com/v1beta/models/${testModel}:generateContent?key=${key}`;
+      let res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: 'Ping Test' }] }] })
+      });
+
+      if (res.ok) return testModel;
+
+      // Fallback test gemini-2.0-flash
+      testModel = 'gemini-2.0-flash';
+      url = `https://generativelanguage.googleapis.com/v1beta/models/${testModel}:generateContent?key=${key}`;
+      res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: 'Ping Test' }] }] })
+      });
+
+      if (res.ok) return testModel;
+
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error?.message || `HTTP ${res.status}`);
+    }
+
+    /* ==========================================
+       ONBOARDING & PROFILE MANAGEMENT
+       ========================================== */
+    function initDateDropdowns() {
+      const yearSel = document.getElementById('onboardYear');
+      const monthSel = document.getElementById('onboardMonth');
+      const daySel = document.getElementById('onboardDay');
+
+      if (!yearSel) return;
+
+      const currentYear = new Date().getFullYear();
+      let yHtml = '';
+      for (let y = currentYear - 18; y >= currentYear - 85; y--) {
+        yHtml += `<option value="${y}">${y}年</option>`;
+      }
+      yearSel.innerHTML = yHtml;
+      yearSel.value = APP_STATE.user.birthYear || '1984';
+
+      let mHtml = '';
+      for (let m = 1; m <= 12; m++) {
+        const mStr = String(m).padStart(2, '0');
+        mHtml += `<option value="${mStr}">${m}月</option>`;
+      }
+      monthSel.innerHTML = mHtml;
+      monthSel.value = APP_STATE.user.birthMonth || '06';
+
+      let dHtml = '';
+      for (let d = 1; d <= 31; d++) {
+        const dStr = String(d).padStart(2, '0');
+        dHtml += `<option value="${dStr}">${d}日</option>`;
+      }
+      daySel.innerHTML = dHtml;
+      daySel.value = APP_STATE.user.birthDay || '15';
+    }
+
+    function updateCalculatedAgeNotice() {
+      const y = parseInt(document.getElementById('onboardYear').value);
+      const m = parseInt(document.getElementById('onboardMonth').value);
+      const d = parseInt(document.getElementById('onboardDay').value);
+
+      const today = new Date();
+      let age = today.getFullYear() - y;
+      const mDiff = (today.getMonth() + 1) - m;
+      if (mDiff < 0 || (mDiff === 0 && today.getDate() < d)) {
+        age--;
+      }
+
+      document.getElementById('onboardCalculatedAgeText').textContent = `実年齢: ${age} 歳`;
+      return age;
+    }
+
+    function updateCalculatedAge() {
+      const y = parseInt(APP_STATE.user.birthYear || '1984');
+      const m = parseInt(APP_STATE.user.birthMonth || '06');
+      const d = parseInt(APP_STATE.user.birthDay || '15');
+
+      const today = new Date();
+      let age = today.getFullYear() - y;
+      const mDiff = (today.getMonth() + 1) - m;
+      if (mDiff < 0 || (mDiff === 0 && today.getDate() < d)) age--;
+
+      APP_STATE.user.calculatedAge = age || 42;
+
+      document.getElementById('settingsUserName').textContent = APP_STATE.user.name;
+      document.getElementById('settingsUserStyle').textContent = APP_STATE.user.style === 'female' ? '女性向け' : '男性向け';
+      document.getElementById('settingsUserBirth').textContent = `${APP_STATE.user.birthYear}/${APP_STATE.user.birthMonth}/${APP_STATE.user.birthDay} (${APP_STATE.user.calculatedAge}歳)`;
+      document.getElementById('settingsUserFocus').textContent = APP_STATE.user.focus;
+    }
+
+    function setOnboardStyle(styleMode) {
+      APP_STATE.user.style = styleMode;
+      const btnF = document.getElementById('btnStyleFemale');
+      const btnM = document.getElementById('btnStyleMale');
+
+      if (styleMode === 'female') {
+        btnF.className = 'p-3 rounded-xl border border-brand-accent bg-amber-50/50 text-brand-accent font-semibold text-center';
+        btnM.className = 'p-3 rounded-xl border border-brand-border bg-white text-brand-muted font-semibold text-center';
+      } else {
+        btnM.className = 'p-3 rounded-xl border border-brand-accent bg-amber-50/50 text-brand-accent font-semibold text-center';
+        btnF.className = 'p-3 rounded-xl border border-brand-border bg-white text-brand-muted font-semibold text-center';
+      }
+    }
+
+    function openOnboarding() {
+      document.getElementById('authOnboardingScreen').classList.remove('hidden');
+      document.getElementById('onboardName').value = APP_STATE.user.name || '雅美';
+      setOnboardStyle(APP_STATE.user.style || 'female');
+      updateCalculatedAgeNotice();
+    }
+
+    function reopenOnboarding() {
+      openOnboarding();
+    }
+
+    function openProfileModal() {
+      openOnboarding();
+    }
+
+    function submitOnboarding() {
+      const name = document.getElementById('onboardName').value.trim() || '雅美';
+      const y = document.getElementById('onboardYear').value;
+      const m = document.getElementById('onboardMonth').value;
+      const d = document.getElementById('onboardDay').value;
+      const focus = document.getElementById('onboardFocus').value;
+
+      APP_STATE.user.name = name;
+      APP_STATE.user.birthYear = y;
+      APP_STATE.user.birthMonth = m;
+      APP_STATE.user.birthDay = d;
+      APP_STATE.user.focus = focus;
+
+      localStorage.setItem('lumiere_user', JSON.stringify(APP_STATE.user));
+      localStorage.setItem('lumiere_onboarded', 'true');
+
+      updateCalculatedAge();
+      renderHeroPortrait();
+      renderHomeDate();
+
+      document.getElementById('authOnboardingScreen').classList.add('hidden');
+      showToast('✨ カルテを更新しました！LUMIÈREへようこそ。', 'success');
+    }
+
+    function openSkinCheckModal() {
+      document.getElementById('skinCheckModal').classList.remove('hidden');
+    }
+
+    function closeSkinCheckModal() {
+      document.getElementById('skinCheckModal').classList.add('hidden');
+    }
+
+    /* ==========================================
+       DIAGNOSTICS & BACKDROP CONTROL
+       ========================================== */
+    async function runDiagnostics() {
+      showToast('🔧 セルフチェック診断を実行中…', 'info');
+
+      // 1. DOM Label Binding Check
+      const pouchInput = document.getElementById('pouchCameraInput');
+      const skinInput = document.getElementById('skinCameraInput');
+      const domOk = pouchInput && skinInput && pouchInput.getAttribute('capture') === 'environment';
+      document.getElementById('diagDom').innerHTML = domOk ? '<span class="text-emerald-700">✅ 正常 (Bound)</span>' : '<span class="text-rose-600">❌ DOM異常</span>';
+
+      // 2. getUserMedia Support
+      const camOk = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+      document.getElementById('diagCam').innerHTML = camOk ? '<span class="text-emerald-700">✅ サポート済</span>' : '<span class="text-amber-600">⚠️ 未サポート/制限</span>';
+
+      // 3. Offscreen Canvas JPEG Compressor Pipeline
+      let canvasOk = false;
+      try {
+        const c = document.createElement('canvas');
+        c.width = 100; c.height = 100;
+        const url = c.toDataURL('image/jpeg', 0.8);
+        canvasOk = url.startsWith('data:image/jpeg');
+      } catch (e) {}
+      document.getElementById('diagCanvas').innerHTML = canvasOk ? '<span class="text-emerald-700">✅ 正常</span>' : '<span class="text-rose-600">❌ Canvas失敗</span>';
+
+      // 4. Gemini API Connection
+      const aiStatusEl = document.getElementById('diagAi');
+      if (!APP_STATE.apiKey) {
+        aiStatusEl.innerHTML = '<span class="text-amber-600">⚠️ API未接続</span>';
+      } else {
+        aiStatusEl.innerHTML = '<span class="text-amber-600 animate-pulse">⏳ テスト中…</span>';
+        try {
+          const active = await runModelTestConnection(APP_STATE.apiKey);
+          aiStatusEl.innerHTML = `<span class="text-emerald-700">✅ 通信成功 (${active})</span>`;
+        } catch (e) {
+          aiStatusEl.innerHTML = `<span class="text-rose-600">❌ 通信失敗</span>`;
+        }
+      }
+    }
+
+    function toggleBackdropMotion(enable) {
+      const bg = document.getElementById('backdropImg');
+      if (enable) {
+        bg.classList.remove('backdrop-paused');
+      } else {
+        bg.classList.add('backdrop-paused');
+      }
+    }
+
+    function exportUserData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(APP_STATE, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `lumiere_backup_${Date.now()}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast('📥 バックアップファイルを保存しました', 'success');
+    }
+
+    function importUserData() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'application/json';
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          try {
+            const imported = JSON.parse(evt.target.result);
+            if (imported.user) APP_STATE.user = imported.user;
+            if (imported.pouch) APP_STATE.pouch = imported.pouch;
+            if (imported.apiKey) APP_STATE.apiKey = imported.apiKey;
+            
+            localStorage.setItem('lumiere_user', JSON.stringify(APP_STATE.user));
+            localStorage.setItem('lumiere_pouch', JSON.stringify(APP_STATE.pouch));
+            if (APP_STATE.apiKey) localStorage.setItem('lumiere_apikey', APP_STATE.apiKey);
+
+            updateCalculatedAge();
+            renderPouchItems();
+            renderHeaderAiPill();
+            showToast('📤 データを正常に復元しました！', 'success');
+          } catch (err) {
+            showToast('JSONファイルの形式が不正です。', 'error');
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    }
+
+    /* ==========================================
+       UTILITY HELPERS (TOAST, COPY, ESCAPE)
+       ========================================== */
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      let bgColor = 'bg-brand-ink text-white';
+      if (type === 'success') bgColor = 'bg-emerald-800 text-white';
+      if (type === 'error') bgColor = 'bg-rose-800 text-white';
+      if (type === 'warning') bgColor = 'bg-amber-800 text-white';
+
+      toast.className = `p-3 rounded-2xl shadow-xl text-xs font-medium ${bgColor} border border-white/20 transition-all transform translate-y-[-10px] opacity-0 flex items-center justify-between pointer-events-auto`;
+      toast.innerHTML = `
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()" class="ml-2 text-white/80 hover:text-white">✕</button>
+      `;
+
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-[-10px]', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-[-10px]');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    function copyToClipboardText(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {}
+      document.body.removeChild(textArea);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
